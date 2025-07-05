@@ -6,51 +6,105 @@ import { Search, TrendingUp, TrendingDown } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import WithdrawLiquidityModal from '@/components/WithdrawLiquidityModal';
 
-// Mock token data - in real app this would come from API/database
-const mockTokens = [
-  {
-    id: '1',
-    name: 'MyToken',
-    symbol: 'MTK',
-    imageUrl: null,
-    liquidity: 12.6,
-    price: 0.0034,
-    priceChange24h: 5.23,
-    volume24h: 45600,
-    marketCap: 1240000,
-    chartData: [
-      { time: '00:00', price: 0.0032 },
-      { time: '04:00', price: 0.0031 },
-      { time: '08:00', price: 0.0033 },
-      { time: '12:00', price: 0.0035 },
-      { time: '16:00', price: 0.0036 },
-      { time: '20:00', price: 0.0034 },
-      { time: '24:00', price: 0.0034 }
-    ]
-  }
-];
+interface Token {
+  id: string;
+  name: string;
+  symbol: string;
+  imageUrl?: string;
+  liquidity: number;
+  price: number;
+  priceChange24h: number;
+  volume24h: number;
+  marketCap: number;
+  chartData: Array<{ time: string; price: number }>;
+}
 
 const Portfolio = () => {
-  const [tokens, setTokens] = useState(mockTokens);
-  const [selectedToken, setSelectedToken] = useState<typeof mockTokens[0] | null>(null);
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+
+  // Load tokens from localStorage
+  useEffect(() => {
+    const createdTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
+    const tokensWithLiquidity = createdTokens.filter((token: any) => token.liquidity > 0);
+    
+    const formattedTokens = tokensWithLiquidity.map((token: any) => {
+      const basePrice = 0.000012 + (token.liquidity * 0.000001);
+      const volume = token.liquidity * 1200;
+      const marketCap = volume * 2.3;
+      
+      return {
+        id: token.id,
+        name: token.name,
+        symbol: token.symbol,
+        imageUrl: token.imageUrl,
+        liquidity: token.liquidity,
+        price: basePrice,
+        priceChange24h: (Math.random() - 0.5) * 10,
+        volume24h: volume,
+        marketCap: marketCap,
+        chartData: generateChartData(basePrice)
+      };
+    });
+    
+    setTokens(formattedTokens);
+  }, []);
+
+  // Generate realistic chart data
+  const generateChartData = (basePrice: number) => {
+    const data = [];
+    let currentPrice = basePrice * 0.9;
+    
+    for (let i = 0; i < 24; i++) {
+      const change = (Math.random() - 0.5) * 0.0000002;
+      currentPrice += change;
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: Math.max(currentPrice, basePrice * 0.5)
+      });
+    }
+    
+    // Gradually trend towards target
+    const targetPrice = basePrice * 1.2;
+    const finalPoints = 8;
+    for (let i = 0; i < finalPoints; i++) {
+      const progress = (i + 1) / finalPoints;
+      const price = currentPrice + (targetPrice - currentPrice) * progress;
+      data[data.length - finalPoints + i].price = price;
+    }
+    
+    return data;
+  };
 
   // Simulate token price updates
   useEffect(() => {
+    if (tokens.length === 0) return;
+    
     const interval = setInterval(() => {
       setTokens(prevTokens => 
-        prevTokens.map(token => ({
-          ...token,
-          price: token.price + (Math.random() - 0.5) * 0.0001,
-          priceChange24h: token.priceChange24h + (Math.random() - 0.5) * 0.5
-        }))
+        prevTokens.map(token => {
+          const priceChange = (Math.random() - 0.5) * 0.0000005;
+          const percentChange = (Math.random() - 0.5) * 0.3;
+          
+          return {
+            ...token,
+            price: Math.max(token.price + priceChange, token.price * 0.8),
+            priceChange24h: token.priceChange24h + percentChange,
+            volume24h: token.volume24h + (Math.random() - 0.5) * 100,
+            chartData: [...token.chartData.slice(1), {
+              time: new Date().toLocaleTimeString(),
+              price: Math.max(token.price + priceChange, token.price * 0.8)
+            }]
+          };
+        })
       );
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [tokens.length]);
 
-  const handleWithdrawLiquidity = (token: typeof mockTokens[0]) => {
+  const handleWithdrawLiquidity = (token: Token) => {
     setSelectedToken(token);
     setShowWithdrawModal(true);
   };
@@ -65,7 +119,7 @@ const Portfolio = () => {
               <div className="w-20 h-20 bg-gray-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="w-10 h-10 text-gray-400" />
               </div>
-              <h3 className="text-2xl font-semibold mb-2 text-gray-300">No token created</h3>
+              <h3 className="text-2xl font-semibold mb-2 text-gray-300">No tokens created</h3>
               <p className="text-gray-400">
                 Create your first token to get started with liquidity management
               </p>
@@ -134,7 +188,7 @@ const Portfolio = () => {
                       <div>
                         <p className="text-gray-400">Price</p>
                         <div className="flex items-center space-x-1">
-                          <span className="font-semibold">${token.price.toFixed(6)}</span>
+                          <span className="font-semibold">${token.price.toFixed(8)}</span>
                           {token.priceChange24h > 0 ? (
                             <TrendingUp className="w-3 h-3 text-green-500" />
                           ) : (

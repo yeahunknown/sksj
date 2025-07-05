@@ -38,13 +38,29 @@ const CreateToken = () => {
     description: '',
     image: null,
     imageUrl: '',
-    freezeAuthority: true,
-    revokeMint: true,
-    revokeMetadata: true,
+    freezeAuthority: false,
+    revokeMint: false,
+    revokeMetadata: false,
   });
 
   const updateTokenData = (field: keyof TokenData, value: any) => {
     setTokenData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setTokenData({
+      name: '',
+      symbol: '',
+      totalSupply: '',
+      decimals: '6',
+      description: '',
+      image: null,
+      imageUrl: '',
+      freezeAuthority: false,
+      revokeMint: false,
+      revokeMetadata: false,
+    });
+    setCurrentStep(1);
   };
 
   const handleImageUpload = (file: File) => {
@@ -70,6 +86,18 @@ const CreateToken = () => {
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
     setShowSuccessModal(true);
+    
+    // Store token data in localStorage for portfolio
+    const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
+    const newToken = {
+      ...tokenData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      liquidity: 0
+    };
+    existingTokens.push(newToken);
+    localStorage.setItem('createdTokens', JSON.stringify(existingTokens));
+    localStorage.setItem('lastCreatedToken', JSON.stringify(newToken));
   };
 
   const steps = [
@@ -165,7 +193,7 @@ const CreateToken = () => {
                       <SelectTrigger className="mt-2 glass border-white/20">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="glass border-white/20">
+                      <SelectContent className="glass border-white/20 bg-gray-900 z-50">
                         {[...Array(10)].map((_, i) => (
                           <SelectItem key={i} value={i.toString()}>
                             {i} decimals
@@ -244,7 +272,7 @@ const CreateToken = () => {
                         </div>
                         <div>
                           <div className="font-medium">Freeze Authority</div>
-                          <div className="text-sm text-green-400">Recommended</div>
+                          <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -265,7 +293,7 @@ const CreateToken = () => {
                         </div>
                         <div>
                           <div className="font-medium">Revoke Mint Authority</div>
-                          <div className="text-sm text-green-400">Recommended</div>
+                          <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -286,7 +314,7 @@ const CreateToken = () => {
                         </div>
                         <div>
                           <div className="font-medium">Revoke Metadata Authority</div>
-                          <div className="text-sm text-green-400">Recommended</div>
+                          <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -423,8 +451,15 @@ const CreateToken = () => {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
+        onClose={() => {
+          setShowSuccessModal(false);
+          resetForm();
+        }}
         tokenData={tokenData}
+        onCreateAnother={() => {
+          setShowSuccessModal(false);
+          resetForm();
+        }}
       />
     </Layout>
   );

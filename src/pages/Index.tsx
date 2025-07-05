@@ -2,217 +2,156 @@
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, Zap, Check } from 'lucide-react';
+import { ArrowRight, Zap, Shield, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
-  const navigate = useNavigate();
-  const [tokenCount, setTokenCount] = useState(0);
-  const [liquidityCount, setLiquidityCount] = useState(0);
-  const [volumeCount, setVolumeCount] = useState(0);
+  const [stats, setStats] = useState({
+    tokens: 1247,
+    liquidity: 2.1,
+    volume: 847
+  });
 
-  // Animate counters on mount with realistic values
+  // Realistic counter animation
   useEffect(() => {
-    const animateCounter = (
-      setter: (value: number) => void,
-      target: number,
-      duration: number = 2000
-    ) => {
-      let start = 0;
-      const increment = target / (duration / 16);
-      const timer = setInterval(() => {
-        start += increment;
-        if (start >= target) {
-          setter(target);
-          clearInterval(timer);
-        } else {
-          setter(Math.floor(start));
-        }
-      }, 16);
-    };
+    const interval = setInterval(() => {
+      setStats(prev => ({
+        tokens: prev.tokens + Math.floor(Math.random() * 3),
+        liquidity: prev.liquidity + (Math.random() - 0.5) * 0.01,
+        volume: prev.volume + (Math.random() - 0.5) * 2
+      }));
+    }, 4000);
 
-    setTimeout(() => animateCounter(setTokenCount, 1247), 500);
-    setTimeout(() => animateCounter(setLiquidityCount, 2.1), 700);
-    setTimeout(() => animateCounter(setVolumeCount, 847), 900);
-
-    // Add realistic fluctuations
-    const fluctuateStats = () => {
-      setInterval(() => {
-        setTokenCount(prev => prev + Math.floor(Math.random() * 3));
-        setLiquidityCount(prev => prev + (Math.random() - 0.5) * 0.1);
-        setVolumeCount(prev => prev + (Math.random() - 0.5) * 20);
-      }, 4000);
-    };
-
-    setTimeout(fluctuateStats, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <Layout>
-      <div className="relative">
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5" />
-          
-          {/* Glass orb effects */}
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-
-          <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-              Launch Your
-              <span className="text-gradient block mt-2">SPL Token</span>
-              <span className="text-white">on Solana</span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              The most trusted platform for creating and launching Solana SPL tokens.
-              <br />
-              Secure, fast, and professional.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <Button
-                onClick={() => navigate('/create')}
-                className="px-8 py-4 text-lg bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
-              >
-                Create a Token
-              </Button>
+      <div className="min-h-screen">
+        {/* Hero Section - Reduced top padding */}
+        <section className="py-12 px-4">
+          <div className="max-w-6xl mx-auto text-center">
+            <div className="animate-slide-up">
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Create SPL Tokens
+                <span className="block text-gradient">In Seconds</span>
+              </h1>
               
-              <Button
-                variant="outline"
-                className="px-8 py-4 text-lg glass border-white/20 text-white hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-105"
-              >
-                View Documentation
-              </Button>
-            </div>
-          </div>
-        </section>
+              <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                Deploy Solana tokens instantly with professional-grade tools. 
+                No coding required, just point, click, and launch.
+              </p>
 
-        {/* Stats Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="glass rounded-2xl p-8 text-center animate-slide-up">
-                <div className="text-4xl font-bold text-blue-500 mb-2">
-                  {tokenCount.toLocaleString()}
-                </div>
-                <div className="text-gray-300">Tokens Created</div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <Link to="/create">
+                  <Button 
+                    size="lg" 
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
+                  >
+                    Create Token Now
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+                
+                <Link to="/portfolio">
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="glass border-white/20 px-8 py-4 text-lg hover:bg-white/10 transition-all duration-300"
+                  >
+                    View Portfolio
+                  </Button>
+                </Link>
               </div>
-              
-              <div className="glass rounded-2xl p-8 text-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                <div className="text-4xl font-bold text-green-500 mb-2">
-                  ${liquidityCount.toFixed(1)}M
+
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div className="glass rounded-2xl p-6 text-center animate-counter">
+                  <div className="text-3xl font-bold text-blue-500 mb-2">
+                    {stats.tokens.toLocaleString()}+
+                  </div>
+                  <div className="text-gray-400">Tokens Created</div>
                 </div>
-                <div className="text-gray-300">Total Liquidity</div>
-              </div>
-              
-              <div className="glass rounded-2xl p-8 text-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                <div className="text-4xl font-bold text-purple-500 mb-2">
-                  ${volumeCount.toLocaleString()}K
+                
+                <div className="glass rounded-2xl p-6 text-center animate-counter" style={{animationDelay: '0.2s'}}>
+                  <div className="text-3xl font-bold text-green-500 mb-2">
+                    ${stats.liquidity.toFixed(1)}M
+                  </div>
+                  <div className="text-gray-400">Total Liquidity</div>
                 </div>
-                <div className="text-gray-300">24h Volume</div>
+                
+                <div className="glass rounded-2xl p-6 text-center animate-counter" style={{animationDelay: '0.4s'}}>
+                  <div className="text-3xl font-bold text-purple-500 mb-2">
+                    ${stats.volume.toLocaleString()}K
+                  </div>
+                  <div className="text-gray-400">24h Volume</div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Security Features */}
-        <section className="py-20 px-4 bg-white/5">
+        {/* Features Section */}
+        <section className="py-16 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-6">Why Choose Omnipad?</h2>
-              <p className="text-xl text-gray-300">Built with security and reliability in mind</p>
+              <h2 className="text-4xl font-bold mb-4">Why Choose Omnipad?</h2>
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+                Professional token creation tools with enterprise-grade security and instant deployment.
+              </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="glass rounded-2xl p-8 animate-slide-up">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6">
-                  <Shield className="w-6 h-6 text-blue-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-4">Freeze Authority</h3>
-                <p className="text-gray-300">
-                  Maintain complete control over your token with optional freeze capabilities for enhanced security.
-                </p>
-              </div>
-
-              <div className="glass rounded-2xl p-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-6">
-                  <Lock className="w-6 h-6 text-green-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-4">Revoke Controls</h3>
-                <p className="text-gray-300">
-                  Permanently revoke mint and metadata authorities to ensure token integrity and build trust.
-                </p>
-              </div>
-
-              <div className="glass rounded-2xl p-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6">
-                  <Zap className="w-6 h-6 text-purple-500" />
+              <div className="glass rounded-2xl p-8 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Zap className="w-8 h-8 text-blue-500" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Instant Deploy</h3>
-                <p className="text-gray-300">
-                  Deploy your token to Solana mainnet instantly with our optimized smart contract infrastructure.
+                <p className="text-gray-400">
+                  Deploy your token to Solana mainnet in under 30 seconds with our optimized infrastructure.
+                </p>
+              </div>
+
+              <div className="glass rounded-2xl p-8 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Shield className="w-8 h-8 text-green-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-4">Secure by Default</h3>
+                <p className="text-gray-400">
+                  Built-in security features including freeze authority, mint controls, and metadata protection.
+                </p>
+              </div>
+
+              <div className="glass rounded-2xl p-8 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105">
+                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <TrendingUp className="w-8 h-8 text-purple-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-4">Add Liquidity</h3>
+                <p className="text-gray-400">
+                  Seamlessly add liquidity to DEX platforms and track your token's performance in real-time.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Benefits Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-6">SPL Token Benefits</h2>
-              <p className="text-xl text-gray-300">Leverage the power of Solana blockchain</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="space-y-8">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <Check className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Ultra-Fast Transactions</h3>
-                    <p className="text-gray-300">Process thousands of transactions per second with sub-second finality.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <Check className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Low Transaction Costs</h3>
-                    <p className="text-gray-300">Enjoy minimal fees, typically less than $0.01 per transaction.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <Check className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Ecosystem Integration</h3>
-                    <p className="text-gray-300">Seamlessly integrate with major DEXs, wallets, and DeFi protocols.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="glass rounded-2xl p-8">
-                <h3 className="text-2xl font-bold mb-6">Ready to Launch?</h3>
-                <p className="text-gray-300 mb-8">
-                  Join thousands of projects that have successfully launched their tokens on Solana using Omnipad.
-                </p>
-                <Button
-                  onClick={() => navigate('/create')}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl transition-all duration-300 hover:scale-105"
+        {/* CTA Section */}
+        <section className="py-16 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="glass rounded-3xl p-12">
+              <h2 className="text-4xl font-bold mb-6">Ready to Launch Your Token?</h2>
+              <p className="text-xl text-gray-300 mb-8">
+                Join thousands of projects that trust Omnipad for their token creation needs.
+              </p>
+              <Link to="/create">
+                <Button 
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold transition-all duration-300"
                 >
-                  Start Creating Now
+                  Get Started Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-              </div>
+              </Link>
             </div>
           </div>
         </section>

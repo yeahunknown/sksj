@@ -1,14 +1,16 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import PaymentModal from '@/components/PaymentModal';
+import { toast } from '@/hooks/use-toast';
 
 const Liquidity = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     tokenAddress: '',
     tokenName: '',
@@ -18,25 +20,77 @@ const Liquidity = () => {
     boostVisibility: false
   });
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [lpSizeError, setLpSizeError] = useState('');
+
+  // Load last created token data
+  useEffect(() => {
+    const lastToken = localStorage.getItem('lastCreatedToken');
+    if (lastToken) {
+      const tokenData = JSON.parse(lastToken);
+      setFormData(prev => ({
+        ...prev,
+        tokenName: tokenData.name,
+        tokenSymbol: tokenData.symbol,
+        tokenAddress: '7xKRMGGKuSTrHCLsKGKn1JqCbDe8R9s8hTw8oDG6w4J7'
+      }));
+    }
+  }, []);
 
   const updateFormData = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Validate LP Size
+    if (field === 'lpSize') {
+      const numValue = parseFloat(value as string);
+      if (isNaN(numValue)) {
+        setLpSizeError('');
+      } else if (numValue < 0.3) {
+        setLpSizeError('Minimum LP size is 0.3 SOL');
+      } else if (numValue > 100) {
+        setLpSizeError('Maximum LP size is 100 SOL');
+      } else {
+        setLpSizeError('');
+      }
+    }
   };
 
   const totalCost = useMemo(() => {
     let cost = 0;
-    if (formData.lpSize) {
+    if (formData.lpSize && !lpSizeError) {
       cost = parseFloat(formData.lpSize);
     }
     if (formData.boostVisibility) {
       cost += 0.15;
     }
     return cost;
-  }, [formData.lpSize, formData.boostVisibility]);
+  }, [formData.lpSize, formData.boostVisibility, lpSizeError]);
 
-  const isFormValid = formData.tokenAddress && formData.tokenName && formData.tokenSymbol && formData.addSupply && formData.lpSize;
+  const isFormValid = formData.tokenAddress && formData.tokenName && formData.tokenSymbol && 
+                     formData.addSupply && formData.lpSize && !lpSizeError;
 
   const handleAddLiquidity = () => {
+    // Check if token was created
+    const lastToken = localStorage.getItem('lastCreatedToken');
+    if (!lastToken) {
+      toast({
+        title: "Error",
+        description: "Please create a token first!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const tokenData = JSON.parse(lastToken);
+    if (formData.tokenName !== tokenData.name || formData.tokenSymbol !== tokenData.symbol) {
+      toast({
+        title: "Error", 
+        description: "Token name and symbol must match your created token",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (isFormValid) {
       setShowPaymentModal(true);
     }
@@ -44,15 +98,32 @@ const Liquidity = () => {
 
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
-    // Reset form
-    setFormData({
-      tokenAddress: '',
-      tokenName: '',
-      tokenSymbol: '',
-      addSupply: '',
-      lpSize: '',
-      boostVisibility: false
+    setShowSuccessModal(true);
+    
+    // Update token with liquidity
+    const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
+    const updatedTokens = existingTokens.map((token: any) => {
+      if (token.name === formData.tokenName) {
+        return { ...token, liquidity: parseFloat(formData.lpSize) };
+      }
+      return token;
     });
+    localStorage.setItem('createdTokens', JSON.stringify(updatedTokens));
+  };
+
+  const handleSuccessAction = (action: 'portfolio' | 'more') => {
+    setShowSuccessModal(false);
+    if (action === 'portfolio') {
+      navigate('/portfolio');
+    } else {
+      // Reset form for more liquidity
+      setFormData(prev => ({
+        ...prev,
+        addSupply: '',
+        lpSize: '',
+        boostVisibility: false
+      }));
+    }
   };
 
   return (
@@ -114,17 +185,22 @@ const Liquidity = () => {
               </div>
 
               <div>
-                <Label htmlFor="lpSize">Choose LP Size</Label>
-                <Select value={formData.lpSize} onValueChange={(value) => updateFormData('lpSize', value)}>
-                  <SelectTrigger className="mt-2 glass border-white/20">
-                    <SelectValue placeholder="Select LP size" />
-                  </SelectTrigger>
-                  <SelectContent className="glass border-white/20 bg-gray-900">
-                    <SelectItem value="0.2">0.2 SOL</SelectItem>
-                    <SelectItem value="0.3">0.3 SOL</SelectItem>
-                    <SelectItem value="0.4">0.4 SOL</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="lpSize">LP Size (SOL)</Label>
+                <Input
+                  id="lpSize"
+                  type="number"
+                  value={formData.lpSize}
+                  onChange={(e) => updateFormData('lpSize', e.target.value)}
+                  placeholder="0.3 - 100"
+                  min="0.3"
+                  max="100"
+                  step="0.1"
+                  className={`mt-2 glass border-white/20 ${lpSizeError ? 'border-red-500' : ''}`}
+                />
+                {lpSizeError && (
+                  <p className="text-red-400 text-sm mt-1">{lpSizeError}</p>
+                )}
+                <p className="text-gray-400 text-xs mt-1">Minimum: 0.3 SOL | Maximum: 100 SOL</p>
               </div>
 
               <div className="glass rounded-xl p-4">
@@ -153,7 +229,7 @@ const Liquidity = () => {
                 <div className="glass rounded-xl p-4">
                   <div className="text-lg font-semibold mb-2">Price Breakdown</div>
                   <div className="space-y-2 text-sm">
-                    {formData.lpSize && (
+                    {formData.lpSize && !lpSizeError && (
                       <div className="flex justify-between">
                         <span>Liquidity Pool</span>
                         <span>{formData.lpSize} SOL</span>
@@ -192,6 +268,39 @@ const Liquidity = () => {
         amount={totalCost}
         type="liquidity"
       />
+
+      {/* Liquidity Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-modal-in">
+          <div className="bg-gray-900/95 border border-white/10 rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-modal-scale backdrop-blur-sm">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="text-white text-2xl">💧</span>
+              </div>
+              <h3 className="text-3xl font-bold text-white mb-3">Liquidity Successfully Added!</h3>
+              <p className="text-gray-300 text-lg">
+                Your liquidity has been added to <span className="text-blue-400 font-semibold">{formData.tokenName}</span>
+              </p>
+            </div>
+
+            <div className="flex space-x-4">
+              <Button
+                onClick={() => handleSuccessAction('portfolio')}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
+              >
+                Liquidity Portfolio
+              </Button>
+              <Button
+                onClick={() => handleSuccessAction('more')}
+                variant="outline"
+                className="flex-1 bg-gray-700/50 border-gray-600/50 hover:bg-gray-600/50 text-white font-medium py-3"
+              >
+                Add More Liquidity
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
