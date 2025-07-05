@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
 
 interface TokenData {
   name: string;
@@ -9,6 +10,7 @@ interface TokenData {
   decimals: string;
   description: string;
   image: File | null;
+  imageUrl?: string;
   freezeAuthority: boolean;
   revokeMint: boolean;
   revokeMetadata: boolean;
@@ -59,7 +61,7 @@ const SuccessModal = ({ isOpen, onClose, tokenData }: SuccessModalProps) => {
 
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <div className="text-3xl">✓</div>
+            <Check className="w-8 h-8 text-green-500" />
           </div>
           <h3 className="text-3xl font-bold mb-2 text-gradient">Token Created Successfully!</h3>
           <p className="text-gray-400">
@@ -80,7 +82,7 @@ const SuccessModal = ({ isOpen, onClose, tokenData }: SuccessModalProps) => {
                 size="sm"
                 className="glass border-white/20 shrink-0"
               >
-                {copied ? '✓' : '📋'}
+                {copied ? <Check className="w-4 h-4" /> : '📋'}
               </Button>
             </div>
           </div>

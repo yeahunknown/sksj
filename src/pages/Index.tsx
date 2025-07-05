@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Shield, Lock, Zap, Check } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const Index = () => {
   const [liquidityCount, setLiquidityCount] = useState(0);
   const [volumeCount, setVolumeCount] = useState(0);
 
-  // Animate counters on mount
+  // Animate counters on mount with realistic values
   useEffect(() => {
     const animateCounter = (
       setter: (value: number) => void,
@@ -30,9 +31,20 @@ const Index = () => {
       }, 16);
     };
 
-    setTimeout(() => animateCounter(setTokenCount, 12847), 500);
-    setTimeout(() => animateCounter(setLiquidityCount, 8493), 700);
-    setTimeout(() => animateCounter(setVolumeCount, 2847392), 900);
+    setTimeout(() => animateCounter(setTokenCount, 1247), 500);
+    setTimeout(() => animateCounter(setLiquidityCount, 2.1), 700);
+    setTimeout(() => animateCounter(setVolumeCount, 847), 900);
+
+    // Add realistic fluctuations
+    const fluctuateStats = () => {
+      setInterval(() => {
+        setTokenCount(prev => prev + Math.floor(Math.random() * 3));
+        setLiquidityCount(prev => prev + (Math.random() - 0.5) * 0.1);
+        setVolumeCount(prev => prev + (Math.random() - 0.5) * 20);
+      }, 4000);
+    };
+
+    setTimeout(fluctuateStats, 3000);
   }, []);
 
   return (
@@ -63,7 +75,7 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <Button
                 onClick={() => navigate('/create')}
-                className="px-8 py-4 text-lg bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105 animate-glow"
+                className="px-8 py-4 text-lg bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
               >
                 Create a Token
               </Button>
@@ -91,14 +103,14 @@ const Index = () => {
               
               <div className="glass rounded-2xl p-8 text-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 <div className="text-4xl font-bold text-green-500 mb-2">
-                  ${liquidityCount.toLocaleString()}M
+                  ${liquidityCount.toFixed(1)}M
                 </div>
                 <div className="text-gray-300">Total Liquidity</div>
               </div>
               
               <div className="glass rounded-2xl p-8 text-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
                 <div className="text-4xl font-bold text-purple-500 mb-2">
-                  ${volumeCount.toLocaleString()}
+                  ${volumeCount.toLocaleString()}K
                 </div>
                 <div className="text-gray-300">24h Volume</div>
               </div>
@@ -117,7 +129,7 @@ const Index = () => {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="glass rounded-2xl p-8 animate-slide-up">
                 <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6">
-                  🛡️
+                  <Shield className="w-6 h-6 text-blue-500" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Freeze Authority</h3>
                 <p className="text-gray-300">
@@ -127,7 +139,7 @@ const Index = () => {
 
               <div className="glass rounded-2xl p-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-6">
-                  🔒
+                  <Lock className="w-6 h-6 text-green-500" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Revoke Controls</h3>
                 <p className="text-gray-300">
@@ -137,7 +149,7 @@ const Index = () => {
 
               <div className="glass rounded-2xl p-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
                 <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6">
-                  ⚡
+                  <Zap className="w-6 h-6 text-purple-500" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Instant Deploy</h3>
                 <p className="text-gray-300">
@@ -160,7 +172,7 @@ const Index = () => {
               <div className="space-y-8">
                 <div className="flex items-start space-x-4">
                   <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    ✓
+                    <Check className="w-4 h-4 text-blue-500" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Ultra-Fast Transactions</h3>
@@ -170,7 +182,7 @@ const Index = () => {
 
                 <div className="flex items-start space-x-4">
                   <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    ✓
+                    <Check className="w-4 h-4 text-blue-500" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Low Transaction Costs</h3>
@@ -180,7 +192,7 @@ const Index = () => {
 
                 <div className="flex items-start space-x-4">
                   <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    ✓
+                    <Check className="w-4 h-4 text-blue-500" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Ecosystem Integration</h3>

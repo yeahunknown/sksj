@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Shield, Lock, FileText, Upload } from 'lucide-react';
 import TokenPreview from '@/components/TokenPreview';
 import PaymentModal from '@/components/PaymentModal';
 import SuccessModal from '@/components/SuccessModal';
@@ -17,6 +18,7 @@ interface TokenData {
   decimals: string;
   description: string;
   image: File | null;
+  imageUrl?: string;
   freezeAuthority: boolean;
   revokeMint: boolean;
   revokeMetadata: boolean;
@@ -26,6 +28,7 @@ const CreateToken = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   
   const [tokenData, setTokenData] = useState<TokenData>({
     name: '',
@@ -34,6 +37,7 @@ const CreateToken = () => {
     decimals: '6',
     description: '',
     image: null,
+    imageUrl: '',
     freezeAuthority: true,
     revokeMint: true,
     revokeMetadata: true,
@@ -41,6 +45,18 @@ const CreateToken = () => {
 
   const updateTokenData = (field: keyof TokenData, value: any) => {
     setTokenData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageUpload = (file: File) => {
+    setImageUploading(true);
+    updateTokenData('image', file);
+    
+    // Simulate upload with 1.3 second loading
+    setTimeout(() => {
+      const imageUrl = URL.createObjectURL(file);
+      updateTokenData('imageUrl', imageUrl);
+      setImageUploading(false);
+    }, 1300);
   };
 
   const calculatePrice = () => {
@@ -166,23 +182,41 @@ const CreateToken = () => {
                 <div className="space-y-6">
                   <div>
                     <Label>Token Icon</Label>
-                    <div className="mt-2 glass border-white/20 border-2 border-dashed rounded-xl p-8 text-center">
+                    <div className="mt-2 glass border-white/20 border-2 border-dashed rounded-xl p-8 text-center relative">
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => updateTokenData('image', e.target.files?.[0] || null)}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file);
+                        }}
                         className="hidden"
                         id="icon-upload"
                       />
                       <label htmlFor="icon-upload" className="cursor-pointer">
-                        <div className="text-gray-400 mb-2">📁</div>
-                        <p className="text-sm text-gray-400">
-                          Click to upload or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          PNG, JPG up to 2MB
-                        </p>
+                        <div className="flex flex-col items-center">
+                          <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-400">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            PNG, JPG up to 2MB
+                          </p>
+                        </div>
                       </label>
+                      
+                      {imageUploading && (
+                        <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                          <div className="w-full max-w-xs">
+                            <div className="bg-gray-700 rounded-full h-2 mb-2">
+                              <div className="bg-blue-500 h-2 rounded-full animate-pulse" style={{ 
+                                animation: 'uploadProgress 1.3s ease-out forwards' 
+                              }} />
+                            </div>
+                            <p className="text-sm text-white text-center">Uploading...</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -206,7 +240,7 @@ const CreateToken = () => {
                     <div className="flex items-center justify-between p-4 glass rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                          🛡️
+                          <Shield className="w-4 h-4 text-blue-500" />
                         </div>
                         <div>
                           <div className="font-medium">Freeze Authority</div>
@@ -227,7 +261,7 @@ const CreateToken = () => {
                     <div className="flex items-center justify-between p-4 glass rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                          🔒
+                          <Lock className="w-4 h-4 text-green-500" />
                         </div>
                         <div>
                           <div className="font-medium">Revoke Mint Authority</div>
@@ -248,7 +282,7 @@ const CreateToken = () => {
                     <div className="flex items-center justify-between p-4 glass rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                          📝
+                          <FileText className="w-4 h-4 text-purple-500" />
                         </div>
                         <div>
                           <div className="font-medium">Revoke Metadata Authority</div>
@@ -384,6 +418,7 @@ const CreateToken = () => {
         onClose={() => setShowPaymentModal(false)}
         onSuccess={handlePaymentSuccess}
         amount={calculatePrice()}
+        type="token"
       />
 
       <SuccessModal

@@ -6,6 +6,7 @@ interface TokenData {
   decimals: string;
   description: string;
   image: File | null;
+  imageUrl?: string;
   freezeAuthority: boolean;
   revokeMint: boolean;
   revokeMetadata: boolean;
@@ -22,8 +23,18 @@ const TokenPreview = ({ tokenData }: TokenPreviewProps) => {
       
       <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-6 border border-white/10">
         <div className="flex items-center space-x-4 mb-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-2xl font-bold">
-            {tokenData.symbol ? tokenData.symbol[0] : '?'}
+          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold overflow-hidden">
+            {tokenData.imageUrl ? (
+              <img 
+                src={tokenData.imageUrl} 
+                alt={tokenData.name || 'Token'} 
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                {tokenData.symbol ? tokenData.symbol[0] : '?'}
+              </div>
+            )}
           </div>
           <div>
             <div className="text-xl font-bold">
