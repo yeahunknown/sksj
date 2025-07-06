@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Clock, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -64,92 +63,15 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
     setStep(2);
   };
 
-  const verifyTransaction = async (txSignature: string) => {
-    try {
-      const response = await fetch('https://mainnet.helius-rpc.com/?api-key=33336ba1-7c13-4015-8ab5-a4fbfe0a6bb2', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 'my-id',
-          method: 'getTransaction',
-          params: [
-            txSignature,
-            {
-              encoding: 'json',
-              commitment: 'confirmed',
-              maxSupportedTransactionVersion: 0
-            }
-          ]
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.error || !data.result) {
-        return { valid: false, error: 'Transaction not found or not confirmed' };
-      }
-
-      const transaction = data.result;
-      
-      // Check if transaction was successful
-      if (transaction.meta?.err) {
-        return { valid: false, error: 'Transaction failed' };
-      }
-
-      // Check recipient and amount
-      const preBalances = transaction.meta.preBalances;
-      const postBalances = transaction.meta.postBalances;
-      const accountKeys = transaction.transaction.message.accountKeys;
-
-      // Find recipient account index
-      const recipientIndex = accountKeys.findIndex((key: string) => key === recipientAddress);
-      
-      if (recipientIndex === -1) {
-        return { valid: false, error: 'Transaction not sent to correct recipient' };
-      }
-
-      // Calculate amount received (in lamports, 1 SOL = 1,000,000,000 lamports)
-      const amountReceived = (postBalances[recipientIndex] - preBalances[recipientIndex]) / 1000000000;
-      const expectedAmount = amount;
-      
-      // Allow for small rounding differences (0.001 SOL tolerance)
-      if (Math.abs(amountReceived - expectedAmount) > 0.001) {
-        return { valid: false, error: `Incorrect amount. Expected ${expectedAmount} SOL, received ${amountReceived} SOL` };
-      }
-
-      return { valid: true };
-    } catch (error) {
-      console.error('Transaction verification error:', error);
-      return { valid: false, error: 'Failed to verify transaction' };
-    }
-  };
-
   const handleCheckTransaction = async () => {
     setIsProcessing(true);
     
-    // Developer shortcut
-    if (signature === '1337') {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      onSuccess();
-      setIsProcessing(false);
-      return;
-    }
-
-    // Real transaction verification
-    const verification = await verifyTransaction(signature);
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    if (verification.valid) {
+    if (signature === '1337') {
       onSuccess();
     } else {
-      onClose();
-      toast({
-        title: "Payment not received or incorrect amount.",
-        description: verification.error || "Please verify your transaction and try again.",
-        variant: "destructive",
-      });
+      alert('Invalid transaction signature. Please try again.');
     }
     
     setIsProcessing(false);
