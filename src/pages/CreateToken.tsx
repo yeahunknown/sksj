@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -267,8 +268,7 @@ const CreateToken = () => {
       <TokenSuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        tokenName={tokenData.name}
-        tokenSymbol={tokenData.symbol}
+        tokenData={tokenData}
       />
     </Layout>
   );

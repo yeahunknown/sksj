@@ -1,4 +1,6 @@
 
+import { Button } from '@/components/ui/button';
+
 interface TokenData {
   name: string;
   symbol: string;
@@ -14,9 +16,10 @@ interface TokenData {
 
 interface TokenPreviewProps {
   tokenData: TokenData;
+  onConfirm?: () => void;
 }
 
-const TokenPreview = ({ tokenData }: TokenPreviewProps) => {
+const TokenPreview = ({ tokenData, onConfirm }: TokenPreviewProps) => {
   return (
     <div className="glass rounded-2xl p-8">
       <h3 className="text-xl font-bold mb-6">Token Preview</h3>
@@ -86,6 +89,15 @@ const TokenPreview = ({ tokenData }: TokenPreviewProps) => {
           </div>
         )}
       </div>
+
+      {onConfirm && (
+        <Button
+          onClick={onConfirm}
+          className="w-full mt-6 bg-green-500 hover:bg-green-600"
+        >
+          Confirm & Pay
+        </Button>
+      )}
     </div>
   );
 };
