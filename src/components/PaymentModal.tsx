@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -180,14 +181,6 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
               <Link to="/terms" className="text-blue-400 hover:text-blue-300 underline">
                 terms of service
               </Link>
-              {', '}
-              <Link to="/privacy" className="text-blue-400 hover:text-blue-300 underline">
-                privacy policy
-              </Link>
-              {', and '}
-              <Link to="/security" className="text-blue-400 hover:text-blue-300 underline">
-                security policy
-              </Link>
             </div>
           </div>
         ) : (
@@ -253,14 +246,6 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
               By paying you agree to our{' '}
               <Link to="/terms" className="text-blue-400 hover:text-blue-300 underline">
                 terms of service
-              </Link>
-              {', '}
-              <Link to="/privacy" className="text-blue-400 hover:text-blue-300 underline">
-                privacy policy
-              </Link>
-              {', and '}
-              <Link to="/security" className="text-blue-400 hover:text-blue-300 underline">
-                security policy
               </Link>
             </div>
           </div>
