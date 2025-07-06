@@ -13,6 +13,12 @@ interface FileInputProps {
 
 const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
   ({ onChange, onRemove, imageUrl, error }, ref) => {
+    const handleButtonClick = () => {
+      if (ref && typeof ref === 'object' && ref.current) {
+        ref.current.click();
+      }
+    };
+
     return (
       <div className="space-y-2">
         {!imageUrl ? (
@@ -29,7 +35,7 @@ const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
             <Button
               type="button"
               variant="outline"
-              onClick={() => ref?.current?.click()}
+              onClick={handleButtonClick}
               className="bg-gray-700 border-gray-600 hover:bg-gray-600"
             >
               Choose File
