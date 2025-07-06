@@ -250,7 +250,7 @@ const CreateToken = () => {
             </div>
 
             {showPreview && (
-              <TokenPreview tokenData={tokenData} onConfirm={handleConfirmCreation} />
+              <TokenPreview tokenData={tokenData} />
             )}
           </div>
         </div>
