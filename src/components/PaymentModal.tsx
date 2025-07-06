@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Clock, AlertTriangle } from 'lucide-react';
+import { Copy, Clock, AlertTriangle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -63,15 +64,123 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
     setStep(2);
   };
 
+  const verifyPayment = async (txSignature: string) => {
+    try {
+      const response = await fetch('https://mainnet.helius-rpc.com/?api-key=33336ba1-7c13-4015-8ab5-a4fbfe0a6bb2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTransaction',
+          params: [
+            txSignature,
+            {
+              encoding: 'json',
+              commitment: 'confirmed',
+              maxSupportedTransactionVersion: 0
+            }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!data.result) {
+        return false;
+      }
+
+      const transaction = data.result;
+      
+      // Check if transaction is confirmed
+      if (!transaction.meta || transaction.meta.err) {
+        return false;
+      }
+
+      // Check if transaction involves the correct recipient
+      const instructions = transaction.transaction.message.instructions;
+      let correctRecipient = false;
+      let correctAmount = false;
+
+      // Check for SOL transfer
+      for (const instruction of instructions) {
+        if (instruction.program === 'system' && instruction.parsed?.type === 'transfer') {
+          const info = instruction.parsed.info;
+          if (info.destination === recipientAddress) {
+            correctRecipient = true;
+            const transferAmount = info.lamports / 1e9; // Convert lamports to SOL
+            if (Math.abs(transferAmount - amount) < 0.000001) { // Allow for small floating point differences
+              correctAmount = true;
+            }
+          }
+        }
+      }
+
+      // Also check account keys for the recipient address
+      const accountKeys = transaction.transaction.message.accountKeys;
+      if (accountKeys.some((key: any) => key.pubkey === recipientAddress || key === recipientAddress)) {
+        correctRecipient = true;
+      }
+
+      // Check pre/post balances for amount verification
+      if (correctRecipient && transaction.meta.preBalances && transaction.meta.postBalances) {
+        // Find recipient account index
+        let recipientIndex = -1;
+        accountKeys.forEach((key: any, index: number) => {
+          const pubkey = typeof key === 'string' ? key : key.pubkey;
+          if (pubkey === recipientAddress) {
+            recipientIndex = index;
+          }
+        });
+
+        if (recipientIndex >= 0) {
+          const balanceChange = (transaction.meta.postBalances[recipientIndex] - transaction.meta.preBalances[recipientIndex]) / 1e9;
+          if (Math.abs(balanceChange - amount) < 0.000001) {
+            correctAmount = true;
+          }
+        }
+      }
+
+      return correctRecipient && correctAmount;
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      return false;
+    }
+  };
+
   const handleCheckTransaction = async () => {
     setIsProcessing(true);
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+    // Developer shortcut
     if (signature === '1337') {
+      await new Promise(resolve => setTimeout(resolve, 1500));
       onSuccess();
-    } else {
-      alert('Invalid transaction signature. Please try again.');
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      const isValid = await verifyPayment(signature);
+      
+      if (isValid) {
+        onSuccess();
+      } else {
+        onClose();
+        toast({
+          variant: "destructive",
+          title: "Payment Verification Failed",
+          description: "Payment not received or incorrect amount.",
+        });
+      }
+    } catch (error) {
+      onClose();
+      toast({
+        variant: "destructive",
+        title: "Payment Verification Failed", 
+        description: "Payment not received or incorrect amount.",
+      });
     }
     
     setIsProcessing(false);
