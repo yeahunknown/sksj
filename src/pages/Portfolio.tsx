@@ -259,15 +259,21 @@ const Portfolio = () => {
                       <h3 className="text-xl font-bold">{token.name}</h3>
                       <p className="text-gray-400">${token.symbol}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-xs text-gray-500 font-mono">
-                          {token.address.slice(0, 8)}...{token.address.slice(-8)}
-                        </span>
-                        <button
-                          onClick={() => copyAddress(token.address)}
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
+                        {token.address ? (
+                          <>
+                            <span className="text-xs text-gray-500 font-mono">
+                              {token.address.slice(0, 8)}...{token.address.slice(-8)}
+                            </span>
+                            <button
+                              onClick={() => copyAddress(token.address)}
+                              className="text-gray-400 hover:text-white transition-colors"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-500">No address</span>
+                        )}
                       </div>
                       <p className={`text-sm mt-1 ${token.liquidity > 0 ? 'text-blue-400' : 'text-gray-500'}`}>
                         {token.liquidity > 0 ? `${token.liquidity.toFixed(2)} SOL` : 'No liquidity'}
