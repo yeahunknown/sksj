@@ -7,9 +7,10 @@ interface TokenSuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
   tokenName: string;
+  tokenSymbol?: string;
 }
 
-const TokenSuccessModal = ({ isOpen, onClose, tokenName }: TokenSuccessModalProps) => {
+const TokenSuccessModal = ({ isOpen, onClose, tokenName, tokenSymbol }: TokenSuccessModalProps) => {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
@@ -42,7 +43,8 @@ const TokenSuccessModal = ({ isOpen, onClose, tokenName }: TokenSuccessModalProp
           </div>
           <h3 className="text-3xl font-bold text-white mb-3">Token Created Successfully!</h3>
           <p className="text-gray-300 text-lg">
-            Your token <span className="text-green-400 font-semibold">{tokenName}</span> has been created on Solana
+            Your token <span className="text-green-400 font-semibold">{tokenName}</span>
+            {tokenSymbol && <span> ({tokenSymbol})</span>} has been created on Solana
           </p>
         </div>
 
