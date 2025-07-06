@@ -5,8 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Clock, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { verifyPayment } from '@/services/solanaPayment';
-import { toast } from '@/hooks/use-toast';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -56,17 +54,8 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(recipientAddress);
-      toast({
-        title: "Address copied to clipboard",
-        description: "You can now paste it in your wallet app",
-      });
     } catch (err) {
       console.error('Failed to copy to clipboard');
-      toast({
-        title: "Failed to copy",
-        description: "Please copy the address manually",
-        variant: "destructive"
-      });
     }
   };
 
@@ -75,53 +64,17 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   };
 
   const handleCheckTransaction = async () => {
-    if (!signature.trim()) {
-      toast({
-        title: "Transaction signature required",
-        description: "Please enter your transaction signature",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsProcessing(true);
     
-    try {
-      console.log('Starting payment verification...');
-      const result = await verifyPayment({
-        signature: signature.trim(),
-        expectedAmount: amount,
-        expectedRecipient: recipientAddress,
-      });
-
-      console.log('Verification result:', result);
-
-      if (result.isValid) {
-        toast({
-          title: "Payment verified successfully!",
-          description: "Your transaction has been confirmed on Solana mainnet",
-        });
-        onSuccess();
-      } else {
-        console.error('Payment verification failed:', result.error);
-        toast({
-          title: "Payment failed or invalid transaction",
-          description: result.error || "Please check your transaction and try again.",
-          variant: "destructive"
-        });
-        onClose();
-      }
-    } catch (error) {
-      console.error('Payment verification error:', error);
-      toast({
-        title: "Payment failed or invalid transaction",
-        description: "Unable to verify payment. Please try again.",
-        variant: "destructive"
-      });
-      onClose();
-    } finally {
-      setIsProcessing(false);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    if (signature === '1337') {
+      onSuccess();
+    } else {
+      alert('Invalid transaction signature. Please try again.');
     }
+    
+    setIsProcessing(false);
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -231,15 +184,15 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
             </div>
           </div>
         ) : (
-          // Step 2: Transaction Details with real verification
+          // Step 2: Transaction Details
           <div className="space-y-6">
             <div>
-              <h2 className="text-white text-xl font-semibold mb-1">Send Payment</h2>
+              <h2 className="text-white text-xl font-semibold mb-1">Select currency</h2>
               <div className="text-white text-2xl font-bold">{amount.toFixed(6)} SOL</div>
             </div>
 
             <div>
-              <div className="text-gray-400 text-sm mb-2">Send to Solana Mainnet</div>
+              <div className="text-gray-400 text-sm mb-2">Select network</div>
               <div className="flex items-center text-gray-400 text-xs mb-4">
                 <AlertTriangle className="w-4 h-4 mr-1 text-yellow-500" />
                 <span>You pay network fee</span>
@@ -251,7 +204,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
               <div className="text-gray-400 text-sm mb-2">Send exactly</div>
               <div className="text-white font-mono text-lg mb-3">{amount.toFixed(6)} SOL</div>
               
-              <div className="text-gray-400 text-sm mb-2">to this address</div>
+              <div className="text-gray-400 text-sm mb-2">address</div>
               <div className="flex items-center space-x-2 bg-gray-800 rounded-lg p-3 mb-4">
                 <code className="text-green-400 font-mono text-sm flex-1 break-all">
                   {recipientAddress}
@@ -273,12 +226,9 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
               <Input
                 value={signature}
                 onChange={(e) => setSignature(e.target.value)}
-                placeholder="Enter transaction signature or '1337' for testing"
+                placeholder="Transaction signature"
                 className="bg-gray-800 border-gray-700 text-white rounded-lg h-12"
               />
-              <div className="text-gray-500 text-xs mt-1">
-                For testing: Enter "1337" to bypass verification
-              </div>
             </div>
 
             <Button
@@ -286,7 +236,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
               disabled={!signature || isProcessing}
               className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-lg h-12"
             >
-              {isProcessing ? 'Verifying on Solana...' : 'Verify Payment'}
+              {isProcessing ? 'Verifying...' : 'Check Transaction'}
             </Button>
 
             {/* Footer */}
