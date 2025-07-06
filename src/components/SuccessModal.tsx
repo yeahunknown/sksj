@@ -1,8 +1,8 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Copy } from 'lucide-react';
 
 interface TokenData {
   name: string;
@@ -24,12 +24,25 @@ interface SuccessModalProps {
   onCreateAnother?: () => void;
 }
 
+const generateTokenAddress = () => {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz123456789';
+  let result = '';
+  for (let i = 0; i < 44; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessModalProps) => {
   const [copied, setCopied] = useState(false);
+  const [tokenAddress, setTokenAddress] = useState('');
   const navigate = useNavigate();
-  
-  // Generate a mock token address
-  const tokenAddress = '7xKRMGGKuSTrHCLsKGKn1JqCbDe8R9s8hTw8oDG6w4J7';
+
+  useEffect(() => {
+    if (isOpen) {
+      setTokenAddress(generateTokenAddress());
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -67,16 +80,8 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
       className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-modal-in"
       onClick={handleBackdropClick}
     >
-      <div className="bg-gray-900/95 border border-white/10 rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-modal-scale backdrop-blur-sm">
-        {/* Celebration particles */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-500 rounded-full opacity-60 animate-ping" />
-          <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-green-500 rounded-full opacity-70 animate-ping" style={{ animationDelay: '0.5s' }} />
-          <div className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 bg-purple-500 rounded-full opacity-50 animate-ping" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-2/3 right-1/3 w-1 h-1 bg-yellow-500 rounded-full opacity-60 animate-ping" style={{ animationDelay: '1.5s' }} />
-        </div>
-
-        <div className="text-center mb-8 relative">
+      <div className="bg-gray-900 border border-white/10 rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-modal-scale">
+        <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
             <Check className="w-10 h-10 text-white" />
           </div>
@@ -91,10 +96,10 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
         </div>
 
         <div className="space-y-6">
-          <div className="bg-gray-800/60 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
+          <div className="bg-gray-800/60 border border-white/10 rounded-xl p-4">
             <div className="text-sm text-gray-400 mb-2">Token Address</div>
             <div className="flex items-center space-x-2">
-              <code className="flex-1 bg-gray-700/50 px-3 py-2 rounded-lg text-sm font-mono break-all text-green-400 border border-gray-600/50">
+              <code className="flex-1 bg-gray-700/50 px-3 py-2 rounded-lg text-sm font-mono text-green-400 border border-gray-600/50 break-all">
                 {tokenAddress}
               </code>
               <Button
@@ -103,17 +108,17 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
                 size="sm"
                 className="bg-gray-700/50 border-gray-600/50 hover:bg-gray-600/50 shrink-0"
               >
-                {copied ? <Check className="w-4 h-4 text-green-500" /> : '📋'}
+                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
               </Button>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-800/60 border border-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+            <div className="bg-gray-800/60 border border-white/10 rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-blue-400">{tokenData.symbol}</div>
               <div className="text-sm text-gray-400">Symbol</div>
             </div>
-            <div className="bg-gray-800/60 border border-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+            <div className="bg-gray-800/60 border border-white/10 rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-green-400">
                 {tokenData.totalSupply ? Number(tokenData.totalSupply).toLocaleString() : '0'}
               </div>

@@ -63,11 +63,20 @@ const CreateToken = () => {
     setCurrentStep(1);
   };
 
+  // Validation for Step 1
+  const isStep1Valid = () => {
+    return (
+      tokenData.name.length >= 2 &&
+      tokenData.symbol.length >= 2 &&
+      tokenData.totalSupply.length > 0 &&
+      /^\d+$/.test(tokenData.totalSupply)
+    );
+  };
+
   const handleImageUpload = (file: File) => {
     setImageUploading(true);
     updateTokenData('image', file);
     
-    // Simulate upload with 1.3 second loading
     setTimeout(() => {
       const imageUrl = URL.createObjectURL(file);
       updateTokenData('imageUrl', imageUrl);
@@ -76,7 +85,7 @@ const CreateToken = () => {
   };
 
   const calculatePrice = () => {
-    let price = 0.1; // Base price
+    let price = 0.1;
     if (tokenData.freezeAuthority) price += 0.1;
     if (tokenData.revokeMint) price += 0.1;
     if (tokenData.revokeMetadata) price += 0.1;
@@ -87,7 +96,6 @@ const CreateToken = () => {
     setShowPaymentModal(false);
     setShowSuccessModal(true);
     
-    // Store token data in localStorage for portfolio
     const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
     const newToken = {
       ...tokenData,
@@ -161,6 +169,9 @@ const CreateToken = () => {
                       placeholder="My Awesome Token"
                       className="mt-2 glass border-white/20"
                     />
+                    {tokenData.name.length > 0 && tokenData.name.length < 2 && (
+                      <p className="text-red-400 text-sm mt-1">Token name must be at least 2 characters</p>
+                    )}
                   </div>
                   
                   <div>
@@ -173,18 +184,29 @@ const CreateToken = () => {
                       className="mt-2 glass border-white/20"
                       maxLength={8}
                     />
+                    {tokenData.symbol.length > 0 && tokenData.symbol.length < 2 && (
+                      <p className="text-red-400 text-sm mt-1">Symbol must be at least 2 characters</p>
+                    )}
                   </div>
                   
                   <div>
                     <Label htmlFor="supply">Total Supply</Label>
                     <Input
                       id="supply"
-                      type="number"
+                      type="text"
                       value={tokenData.totalSupply}
-                      onChange={(e) => updateTokenData('totalSupply', e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) {
+                          updateTokenData('totalSupply', value);
+                        }
+                      }}
                       placeholder="1000000"
                       className="mt-2 glass border-white/20"
                     />
+                    {tokenData.totalSupply.length > 0 && !/^\d+$/.test(tokenData.totalSupply) && (
+                      <p className="text-red-400 text-sm mt-1">Total supply must be a number</p>
+                    )}
                   </div>
                   
                   <div>
@@ -418,6 +440,7 @@ const CreateToken = () => {
                 {currentStep < 4 ? (
                   <Button
                     onClick={() => setCurrentStep(Math.min(4, currentStep + 1))}
+                    disabled={currentStep === 1 && !isStep1Valid()}
                     className="bg-blue-500 hover:bg-blue-600"
                   >
                     Next
