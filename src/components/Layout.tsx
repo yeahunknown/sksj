@@ -1,7 +1,6 @@
 
 import { ReactNode } from 'react';
 import Header from './Header';
-import Footer from './Footer';
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,10 +8,11 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <main>{children}</main>
-      <Footer />
+      <main className="pt-20">
+        {children}
+      </main>
     </div>
   );
 };

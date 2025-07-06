@@ -15,7 +15,7 @@ const Header = () => {
   return (
     <header className="glass border-b border-white/10 sticky top-0 z-40 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16">
+        <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
             <img 
               src="https://i.ibb.co/8nVTNNzh/Omnipad.png" 
@@ -25,7 +25,7 @@ const Header = () => {
             <span className="text-xl font-bold text-gradient">Omnipad</span>
           </Link>
 
-          <nav className="flex-1 flex justify-center">
+          <nav className="flex items-center justify-center flex-1">
             <div className="flex items-center space-x-8">
               {navItems.map((item) => (
                 <Link

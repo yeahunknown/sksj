@@ -40,38 +40,15 @@ const Portfolio = () => {
     setTokens(sessionTokens);
   }, []);
 
-  // Animate transaction counts and charts for active tokens
+  // Animate transaction counts for active tokens
   useEffect(() => {
     const interval = setInterval(() => {
       setTokens(prevTokens => 
         prevTokens.map(token => {
           if (token.hasLiquidity && !token.isDead && token.isAnimating) {
-            // Update transaction count
-            const newTransactions = token.transactions + Math.floor(Math.random() * 5) + 1;
-            
-            // Update chart with new volatile data
-            const newChartData = [...token.chartData];
-            const lastPrice = newChartData[newChartData.length - 1]?.price || token.price;
-            
-            // Create volatile price movement (up to 20% change)
-            const volatilityFactor = 0.2;
-            const change = (Math.random() - 0.5) * volatilityFactor;
-            const newPrice = Math.max(lastPrice * (1 + change), token.price * 0.1);
-            
-            // Add new data point and remove old one to maintain 24 points
-            newChartData.shift();
-            newChartData.push({
-              time: new Date().toLocaleTimeString('en-US', { hour12: false }),
-              price: newPrice,
-              timestamp: Date.now()
-            });
-            
             return {
               ...token,
-              transactions: newTransactions,
-              price: newPrice,
-              chartData: newChartData,
-              priceChange24h: ((newPrice - token.price) / token.price) * 100
+              transactions: token.transactions + Math.floor(Math.random() * 5) + 1
             };
           }
           return token;
@@ -81,32 +58,14 @@ const Portfolio = () => {
       // Update session storage
       sessionTokens = sessionTokens.map(token => {
         if (token.hasLiquidity && !token.isDead && token.isAnimating) {
-          const newTransactions = token.transactions + Math.floor(Math.random() * 5) + 1;
-          const newChartData = [...token.chartData];
-          const lastPrice = newChartData[newChartData.length - 1]?.price || token.price;
-          
-          const volatilityFactor = 0.2;
-          const change = (Math.random() - 0.5) * volatilityFactor;
-          const newPrice = Math.max(lastPrice * (1 + change), token.price * 0.1);
-          
-          newChartData.shift();
-          newChartData.push({
-            time: new Date().toLocaleTimeString('en-US', { hour12: false }),
-            price: newPrice,
-            timestamp: Date.now()
-          });
-          
           return {
             ...token,
-            transactions: newTransactions,
-            price: newPrice,
-            chartData: newChartData,
-            priceChange24h: ((newPrice - token.price) / token.price) * 100
+            transactions: token.transactions + Math.floor(Math.random() * 5) + 1
           };
         }
         return token;
       });
-    }, 2000); // Update every 2 seconds for more dynamic feel
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);
@@ -156,11 +115,9 @@ const Portfolio = () => {
     let currentPrice = basePrice;
     
     for (let i = 0; i < 24; i++) {
-      // Create realistic volatile price movements
-      const volatility = 0.15; // 15% max change per hour
+      // Create volatile price movements
+      const volatility = 0.3; // 30% max change per hour
       const change = (Math.random() - 0.5) * volatility;
-      
-      // Ensure price doesn't go below 10% of base price
       currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
       
       data.push({
@@ -176,10 +133,10 @@ const Portfolio = () => {
     const data = [...token.chartData];
     const lastPrice = data[data.length - 1]?.price || 0;
     
-    // Add dramatic crash data points
+    // Add crash data points
     const now = Date.now();
     for (let i = 0; i < 5; i++) {
-      const crashMultiplier = Math.pow(0.05, i + 1); // More dramatic crash
+      const crashMultiplier = Math.pow(0.1, i + 1);
       data.push({
         time: `${(23 + i).toString()}:${(i * 12).toString().padStart(2, '0')}`,
         price: lastPrice * crashMultiplier,
@@ -191,23 +148,21 @@ const Portfolio = () => {
   };
 
   const calculateRealisticValues = (liquidity: number, totalSupply: number) => {
-    // More realistic price calculation based on liquidity pool mechanics
-    // Price = (SOL in pool / Token in pool) - simplified AMM formula
-    const tokenInPool = totalSupply * 0.5; // Assume 50% of supply in pool
-    const price = liquidity / tokenInPool;
+    // Price = Liquidity / Total Supply (simplified DEX formula)
+    const price = liquidity / totalSupply;
     
-    // Volume should be proportional to liquidity (10-25% of liquidity per 24h)
-    const volumeMultiplier = 0.1 + Math.random() * 0.15;
-    const volume24h = Math.floor(liquidity * volumeMultiplier * 100) / 100;
+    // Volume is 15-40% of liquidity
+    const volumeMultiplier = 0.15 + Math.random() * 0.25;
+    const volume24h = Math.floor(liquidity * volumeMultiplier);
     
     // Market Cap = Price * Total Supply
-    const marketCap = Math.floor(price * totalSupply * 100) / 100;
+    const marketCap = Math.floor(price * totalSupply);
     
-    // Price change starts neutral and will be updated by volatility
-    const priceChange24h = 0;
+    // Price change is random between -20% to +30%
+    const priceChange24h = Math.random() * 50 - 20;
     
-    // Starting transactions based on liquidity size
-    const transactions = Math.floor(liquidity * 10) + Math.floor(Math.random() * 50) + 20;
+    // Starting transactions
+    const transactions = Math.floor(Math.random() * 80) + 20;
     
     return { price, volume24h, marketCap, priceChange24h, transactions };
   };
@@ -426,7 +381,7 @@ const Portfolio = () => {
                     
                     {token.isDead && (
                       <div className="w-full text-center text-red-400 text-sm py-2 font-semibold">
-                        Token Liquidity Withdrawn - RIP
+                        🪦 Token Liquidity Withdrawn - RIP
                       </div>
                     )}
                   </div>
@@ -498,8 +453,8 @@ function generateActiveChartData(basePrice: number) {
   let currentPrice = basePrice;
   
   for (let i = 0; i < 24; i++) {
-    // Create realistic volatile price movements
-    const volatility = 0.15; // 15% max change per hour
+    // Create volatile price movements
+    const volatility = 0.3; // 30% max change per hour
     const change = (Math.random() - 0.5) * volatility;
     currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
     
@@ -513,22 +468,21 @@ function generateActiveChartData(basePrice: number) {
 }
 
 function calculateRealisticValues(liquidity: number, totalSupply: number) {
-  // More realistic price calculation based on liquidity pool mechanics
-  const tokenInPool = totalSupply * 0.5; // Assume 50% of supply in pool
-  const price = liquidity / tokenInPool;
+  // Price = Liquidity / Total Supply (simplified DEX formula)
+  const price = liquidity / totalSupply;
   
-  // Volume should be proportional to liquidity (10-25% of liquidity per 24h)
-  const volumeMultiplier = 0.1 + Math.random() * 0.15;
-  const volume24h = Math.floor(liquidity * volumeMultiplier * 100) / 100;
+  // Volume is 15-40% of liquidity
+  const volumeMultiplier = 0.15 + Math.random() * 0.25;
+  const volume24h = Math.floor(liquidity * volumeMultiplier);
   
   // Market Cap = Price * Total Supply
-  const marketCap = Math.floor(price * totalSupply * 100) / 100;
+  const marketCap = Math.floor(price * totalSupply);
   
-  // Price change starts neutral and will be updated by volatility
-  const priceChange24h = 0;
+  // Price change is random between -20% to +30%
+  const priceChange24h = Math.random() * 50 - 20;
   
-  // Starting transactions based on liquidity size
-  const transactions = Math.floor(liquidity * 10) + Math.floor(Math.random() * 50) + 20;
+  // Starting transactions
+  const transactions = Math.floor(Math.random() * 80) + 20;
   
   return { price, volume24h, marketCap, priceChange24h, transactions };
 }
