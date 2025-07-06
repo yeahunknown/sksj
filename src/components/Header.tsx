@@ -6,6 +6,7 @@ const Header = () => {
   const location = useLocation();
 
   const navItems = [
+    { name: 'Home', path: '/' },
     { name: 'Create Token', path: '/create' },
     { name: 'Add Liquidity', path: '/liquidity' },
     { name: 'Portfolio', path: '/portfolio' },
@@ -22,7 +23,7 @@ const Header = () => {
             <span className="text-xl font-bold text-gradient">Omnipad</span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="flex items-center space-x-8">
             {navItems.map((item) => (
               <Link
                 key={item.name}

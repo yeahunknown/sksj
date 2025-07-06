@@ -16,9 +16,10 @@ interface WithdrawLiquidityModalProps {
   isOpen: boolean;
   onClose: () => void;
   token: Token | null;
+  onWithdrawSuccess?: (tokenId: string) => void;
 }
 
-const WithdrawLiquidityModal = ({ isOpen, onClose, token }: WithdrawLiquidityModalProps) => {
+const WithdrawLiquidityModal = ({ isOpen, onClose, token, onWithdrawSuccess }: WithdrawLiquidityModalProps) => {
   const [address, setAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,6 +47,12 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token }: WithdrawLiquidityMod
     
     setIsLoading(false);
     onClose();
+    setAddress('');
+    
+    // Trigger token death behavior
+    if (onWithdrawSuccess) {
+      onWithdrawSuccess(token.id);
+    }
     
     toast({
       title: `${token.name} Liquidity Successfully Withdrawed`,
@@ -75,7 +82,7 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token }: WithdrawLiquidityMod
           <div>
             <h3 className="text-xl font-semibold text-white mb-2">Withdraw Liquidity</h3>
             <p className="text-gray-400 text-sm">
-              Withdraw {token.liquidity} SOL from {token.name}
+              Withdraw {token.liquidity.toFixed(2)} SOL from {token.name}
             </p>
           </div>
 

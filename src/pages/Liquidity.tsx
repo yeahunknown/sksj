@@ -22,7 +22,7 @@ const Liquidity = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lpSizeError, setLpSizeError] = useState('');
 
-  // Load last created token data
+  // Load last created token data only if token exists
   useEffect(() => {
     const lastToken = localStorage.getItem('lastCreatedToken');
     if (lastToken) {
@@ -31,7 +31,7 @@ const Liquidity = () => {
         ...prev,
         tokenName: tokenData.name,
         tokenSymbol: tokenData.symbol,
-        tokenAddress: '7xKRMGGKuSTrHCLsKGKn1JqCbDe8R9s8hTw8oDG6w4J7'
+        tokenAddress: tokenData.address || ''
       }));
     }
   }, []);
@@ -110,7 +110,12 @@ const Liquidity = () => {
     const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
     const updatedTokens = existingTokens.map((token: any) => {
       if (token.name === formData.tokenName) {
-        return { ...token, liquidity: parseFloat(formData.lpSize) };
+        return { 
+          ...token, 
+          liquidity: parseFloat(formData.lpSize),
+          hasLiquidity: true,
+          liquidityAdded: Date.now()
+        };
       }
       return token;
     });
