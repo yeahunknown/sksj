@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -49,8 +48,7 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token }: WithdrawLiquidityMod
     onClose();
     
     toast({
-      title: "Withdrawal Successful",
-      description: `${token.name} Liquidity Successfully Withdrawed`,
+      title: `${token.name} Liquidity Successfully Withdrawed`,
     });
   };
 
@@ -59,28 +57,35 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token }: WithdrawLiquidityMod
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-modal-in"
       onClick={handleBackdropClick}
     >
-      <div className="bg-gray-900 border border-green-600/30 rounded-2xl p-8 max-w-md w-full shadow-2xl animate-modal-scale">
+      <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-modal-scale border border-gray-700">
         {/* PGPAY Header */}
-        <div className="text-center mb-6 border-b border-green-600/20 pb-4">
-          <div className="text-2xl font-bold text-green-500 mb-1">PGPAY</div>
-          <div className="text-sm text-gray-400">Secure Payment Gateway</div>
-        </div>
-
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-center mb-2">Withdraw Liquidity</h3>
-          <p className="text-gray-400 text-center text-sm">
-            Withdraw {token.liquidity} SOL from {token.name}
-          </p>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <span className="text-gray-900 font-bold text-sm">PG</span>
+            </div>
+            <span className="text-white font-bold text-xl">PGPAY</span>
+          </div>
+          <Button variant="outline" size="sm" className="text-white border-gray-600 bg-transparent hover:bg-gray-800">
+            Sign up
+          </Button>
         </div>
 
         <div className="space-y-6">
           <div>
-            <Label className="text-gray-400">Paste Solana Address</Label>
+            <h3 className="text-xl font-semibold text-white mb-2">Withdraw Liquidity</h3>
+            <p className="text-gray-400 text-sm">
+              Withdraw {token.liquidity} SOL from {token.name}
+            </p>
+          </div>
+
+          <div>
+            <div className="text-gray-400 text-sm mb-2">Paste Solana Address</div>
             <Input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Enter your Solana wallet address"
-              className="mt-2 bg-gray-800 border-gray-700 text-green-400 rounded-xl"
+              className="bg-gray-800 border-gray-700 text-white rounded-lg h-12"
               disabled={isLoading}
             />
           </div>
@@ -88,7 +93,7 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token }: WithdrawLiquidityMod
           <Button
             onClick={handleWithdraw}
             disabled={!address.trim() || isLoading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl"
+            className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-lg h-12"
           >
             {isLoading ? (
               <>
@@ -99,12 +104,12 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token }: WithdrawLiquidityMod
               'Continue'
             )}
           </Button>
-        </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 pt-4 border-t border-green-600/20">
-          <div className="text-xs text-gray-500">
-            🔒 Secured by Solana Smart Contracts
+          {/* Footer */}
+          <div className="text-center text-gray-500 text-xs">
+            Encrypted & Secure Payment
+            <br />
+            By paying you agree to our terms of service
           </div>
         </div>
       </div>

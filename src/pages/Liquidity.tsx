@@ -1,16 +1,15 @@
 
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import PaymentModal from '@/components/PaymentModal';
+import LiquiditySuccessModal from '@/components/LiquiditySuccessModal';
 import { toast } from '@/hooks/use-toast';
 
 const Liquidity = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     tokenAddress: '',
     tokenName: '',
@@ -55,6 +54,15 @@ const Liquidity = () => {
     }
   };
 
+  const resetLiquidityForm = () => {
+    setFormData(prev => ({
+      ...prev,
+      addSupply: '',
+      lpSize: '',
+      boostVisibility: false
+    }));
+  };
+
   const totalCost = useMemo(() => {
     let cost = 0;
     if (formData.lpSize && !lpSizeError) {
@@ -74,8 +82,7 @@ const Liquidity = () => {
     const lastToken = localStorage.getItem('lastCreatedToken');
     if (!lastToken) {
       toast({
-        title: "Error",
-        description: "Please create a token first!",
+        title: "Please create a token first!",
         variant: "destructive"
       });
       return;
@@ -84,8 +91,7 @@ const Liquidity = () => {
     const tokenData = JSON.parse(lastToken);
     if (formData.tokenName !== tokenData.name || formData.tokenSymbol !== tokenData.symbol) {
       toast({
-        title: "Error", 
-        description: "Token name and symbol must match your created token",
+        title: "Token name and symbol must match your created token",
         variant: "destructive"
       });
       return;
@@ -109,21 +115,6 @@ const Liquidity = () => {
       return token;
     });
     localStorage.setItem('createdTokens', JSON.stringify(updatedTokens));
-  };
-
-  const handleSuccessAction = (action: 'portfolio' | 'more') => {
-    setShowSuccessModal(false);
-    if (action === 'portfolio') {
-      navigate('/portfolio');
-    } else {
-      // Reset form for more liquidity
-      setFormData(prev => ({
-        ...prev,
-        addSupply: '',
-        lpSize: '',
-        boostVisibility: false
-      }));
-    }
   };
 
   return (
@@ -185,7 +176,7 @@ const Liquidity = () => {
               </div>
 
               <div>
-                <Label htmlFor="lpSize">LP Size (SOL)</Label>
+                <Label htmlFor="lpSize">Choose LP Size (SOL)</Label>
                 <Input
                   id="lpSize"
                   type="number"
@@ -269,38 +260,14 @@ const Liquidity = () => {
         type="liquidity"
       />
 
-      {/* Liquidity Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-modal-in">
-          <div className="bg-gray-900/95 border border-white/10 rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-modal-scale backdrop-blur-sm">
-            <div className="text-center mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <span className="text-white text-2xl">💧</span>
-              </div>
-              <h3 className="text-3xl font-bold text-white mb-3">Liquidity Successfully Added!</h3>
-              <p className="text-gray-300 text-lg">
-                Your liquidity has been added to <span className="text-blue-400 font-semibold">{formData.tokenName}</span>
-              </p>
-            </div>
-
-            <div className="flex space-x-4">
-              <Button
-                onClick={() => handleSuccessAction('portfolio')}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
-              >
-                Liquidity Portfolio
-              </Button>
-              <Button
-                onClick={() => handleSuccessAction('more')}
-                variant="outline"
-                className="flex-1 bg-gray-700/50 border-gray-600/50 hover:bg-gray-600/50 text-white font-medium py-3"
-              >
-                Add More Liquidity
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LiquiditySuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        tokenName={formData.tokenName}
+        onAddMore={() => {
+          resetLiquidityForm();
+        }}
+      />
     </Layout>
   );
 };

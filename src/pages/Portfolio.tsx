@@ -29,6 +29,11 @@ const Portfolio = () => {
     const createdTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
     const tokensWithLiquidity = createdTokens.filter((token: any) => token.liquidity > 0);
     
+    if (tokensWithLiquidity.length === 0) {
+      setTokens([]);
+      return;
+    }
+    
     const formattedTokens = tokensWithLiquidity.map((token: any) => {
       const basePrice = 0.000012 + (token.liquidity * 0.000001);
       const volume = token.liquidity * 1200;
@@ -51,23 +56,25 @@ const Portfolio = () => {
     setTokens(formattedTokens);
   }, []);
 
-  // Generate realistic chart data
+  // Generate realistic chart data with more variance
   const generateChartData = (basePrice: number) => {
     const data = [];
-    let currentPrice = basePrice * 0.9;
+    let currentPrice = basePrice * 0.8;
     
     for (let i = 0; i < 24; i++) {
-      const change = (Math.random() - 0.5) * 0.0000002;
-      currentPrice += change;
+      // Add more realistic price variance
+      const change = (Math.random() - 0.5) * basePrice * 0.05;
+      currentPrice = Math.max(currentPrice + change, basePrice * 0.5);
+      
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
-        price: Math.max(currentPrice, basePrice * 0.5)
+        price: currentPrice
       });
     }
     
-    // Gradually trend towards target
-    const targetPrice = basePrice * 1.2;
-    const finalPoints = 8;
+    // Gradually trend upward towards end
+    const targetPrice = basePrice * 1.3;
+    const finalPoints = 6;
     for (let i = 0; i < finalPoints; i++) {
       const progress = (i + 1) / finalPoints;
       const price = currentPrice + (targetPrice - currentPrice) * progress;
@@ -77,29 +84,35 @@ const Portfolio = () => {
     return data;
   };
 
-  // Simulate token price updates
+  // Simulate real-time token updates
   useEffect(() => {
     if (tokens.length === 0) return;
     
     const interval = setInterval(() => {
       setTokens(prevTokens => 
         prevTokens.map(token => {
-          const priceChange = (Math.random() - 0.5) * 0.0000005;
-          const percentChange = (Math.random() - 0.5) * 0.3;
+          const priceChange = (Math.random() - 0.5) * token.price * 0.01;
+          const percentChange = (Math.random() - 0.5) * 0.5;
+          const volumeChange = (Math.random() - 0.5) * 200;
+          
+          const newPrice = Math.max(token.price + priceChange, token.price * 0.9);
           
           return {
             ...token,
-            price: Math.max(token.price + priceChange, token.price * 0.8),
-            priceChange24h: token.priceChange24h + percentChange,
-            volume24h: token.volume24h + (Math.random() - 0.5) * 100,
-            chartData: [...token.chartData.slice(1), {
-              time: new Date().toLocaleTimeString(),
-              price: Math.max(token.price + priceChange, token.price * 0.8)
-            }]
+            price: newPrice,
+            priceChange24h: Math.max(-15, Math.min(15, token.priceChange24h + percentChange)),
+            volume24h: Math.max(0, token.volume24h + volumeChange),
+            chartData: [
+              ...token.chartData.slice(1),
+              {
+                time: new Date().toLocaleTimeString().slice(0, 5),
+                price: newPrice
+              }
+            ]
           };
         })
       );
-    }, 3000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [tokens.length]);
@@ -174,7 +187,7 @@ const Portfolio = () => {
                         <Line 
                           type="monotone" 
                           dataKey="price" 
-                          stroke="#3B82F6" 
+                          stroke={token.priceChange24h >= 0 ? "#10B981" : "#EF4444"}
                           strokeWidth={2}
                           dot={false}
                         />
