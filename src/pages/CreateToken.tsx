@@ -108,13 +108,20 @@ const CreateToken = () => {
 
     const tokenAddress = generateTokenAddress();
     
-    // Add token to session portfolio immediately
+    // Add token to session portfolio immediately with all required properties
     addTokenToSession({
       id: Date.now().toString(),
       name: tokenData.name,
       symbol: tokenData.symbol,
       address: tokenAddress,
       imageUrl: tokenData.imageUrl,
+      liquidity: 0,
+      price: 0,
+      priceChange24h: 0,
+      volume24h: 0,
+      marketCap: 0,
+      hasLiquidity: false,
+      isDead: false,
     });
     
     const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
