@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Shield, Lock, FileText, Upload } from 'lucide-react';
 import TokenPreview from '@/components/TokenPreview';
 import PaymentModal from '@/components/PaymentModal';
 import SuccessModal from '@/components/SuccessModal';
+import { addTokenToSession } from './Portfolio';
 
 interface TokenData {
   name: string;
@@ -96,12 +96,34 @@ const CreateToken = () => {
     setShowPaymentModal(false);
     setShowSuccessModal(true);
     
+    // Generate a random Solana token address for the created token
+    const generateTokenAddress = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < 44; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    };
+
+    const tokenAddress = generateTokenAddress();
+    
+    // Add token to session portfolio immediately
+    addTokenToSession({
+      id: Date.now().toString(),
+      name: tokenData.name,
+      symbol: tokenData.symbol,
+      address: tokenAddress,
+      imageUrl: tokenData.imageUrl,
+    });
+    
     const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
     const newToken = {
       ...tokenData,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
-      liquidity: 0
+      liquidity: 0,
+      address: tokenAddress
     };
     existingTokens.push(newToken);
     localStorage.setItem('createdTokens', JSON.stringify(existingTokens));
