@@ -70,7 +70,7 @@ const Portfolio = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Handle Shift + 6 key combination for demo values
+  // Handle Shift + 6 key combination for exact demo values
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.shiftKey && event.key === '^') {
@@ -115,8 +115,8 @@ const Portfolio = () => {
     let currentPrice = basePrice;
     
     for (let i = 0; i < 24; i++) {
-      // Create volatile price movements
-      const volatility = 0.3; // 30% max change per hour
+      // Create volatile price movements - realistic crypto action
+      const volatility = 0.4; // 40% max change per hour for realistic swings
       const change = (Math.random() - 0.5) * volatility;
       currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
       
@@ -133,12 +133,12 @@ const Portfolio = () => {
     const data = [...token.chartData];
     const lastPrice = data[data.length - 1]?.price || 0;
     
-    // Add crash data points
+    // Add sharp crash data points
     const now = Date.now();
-    for (let i = 0; i < 5; i++) {
-      const crashMultiplier = Math.pow(0.1, i + 1);
+    for (let i = 0; i < 3; i++) {
+      const crashMultiplier = Math.pow(0.05, i + 1); // Sharp drop
       data.push({
-        time: `${(23 + i).toString()}:${(i * 12).toString().padStart(2, '0')}`,
+        time: `${(23 + i).toString()}:${(i * 20).toString().padStart(2, '0')}`,
         price: lastPrice * crashMultiplier,
         timestamp: now + i * 60000
       });
@@ -148,21 +148,21 @@ const Portfolio = () => {
   };
 
   const calculateRealisticValues = (liquidity: number, totalSupply: number) => {
-    // Price = Liquidity / Total Supply (simplified DEX formula)
+    // Realistic price calculation based on liquidity
     const price = liquidity / totalSupply;
     
-    // Volume is 15-40% of liquidity
-    const volumeMultiplier = 0.15 + Math.random() * 0.25;
-    const volume24h = Math.floor(liquidity * volumeMultiplier);
+    // Volume is 25-35% of liquidity for realistic trading
+    const volumeMultiplier = 0.25 + Math.random() * 0.1;
+    const volume24h = Math.floor(liquidity * volumeMultiplier * 300); // Convert SOL to USD roughly
     
-    // Market Cap = Price * Total Supply
-    const marketCap = Math.floor(price * totalSupply);
+    // Market Cap = Price * Total Supply, converted to USD
+    const marketCap = Math.floor(price * totalSupply * 300); // Rough SOL to USD conversion
     
-    // Price change is random between -20% to +30%
-    const priceChange24h = Math.random() * 50 - 20;
+    // Price change is random between -15% to +25%
+    const priceChange24h = Math.random() * 40 - 15;
     
     // Starting transactions
-    const transactions = Math.floor(Math.random() * 80) + 20;
+    const transactions = Math.floor(Math.random() * 50) + 25;
     
     return { price, volume24h, marketCap, priceChange24h, transactions };
   };
@@ -305,7 +305,7 @@ const Portfolio = () => {
                       <LineChart data={token.chartData}>
                         <XAxis dataKey="time" hide />
                         <YAxis hide />
-                        {!token.isDead && (
+                        {!token.isDead && token.hasLiquidity && (
                           <Tooltip 
                             content={<CustomTooltip />}
                           />
@@ -347,7 +347,12 @@ const Portfolio = () => {
                       </div>
                       <div>
                         <p className="text-gray-400">Volume 24h</p>
-                        <p className="font-semibold">${token.volume24h.toLocaleString()}</p>
+                        <p className="font-semibold">
+                          {token.volume24h > 1000 
+                            ? `$${(token.volume24h / 1000).toFixed(2)}k`
+                            : `$${token.volume24h.toLocaleString()}`
+                          }
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-400">Market Cap</p>
@@ -380,8 +385,8 @@ const Portfolio = () => {
                     )}
                     
                     {token.isDead && (
-                      <div className="w-full text-center text-red-400 text-sm py-2 font-semibold">
-                        🪦 Token Liquidity Withdrawn - RIP
+                      <div className="w-full text-center text-red-400 text-sm py-2 font-semibold border border-red-500/30 rounded-lg">
+                        Token Liquidity Withdrawn - RIP
                       </div>
                     )}
                   </div>
@@ -453,8 +458,8 @@ function generateActiveChartData(basePrice: number) {
   let currentPrice = basePrice;
   
   for (let i = 0; i < 24; i++) {
-    // Create volatile price movements
-    const volatility = 0.3; // 30% max change per hour
+    // Create volatile price movements - realistic crypto action
+    const volatility = 0.4; // 40% max change per hour for realistic swings
     const change = (Math.random() - 0.5) * volatility;
     currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
     
@@ -468,21 +473,21 @@ function generateActiveChartData(basePrice: number) {
 }
 
 function calculateRealisticValues(liquidity: number, totalSupply: number) {
-  // Price = Liquidity / Total Supply (simplified DEX formula)
+  // Realistic price calculation based on liquidity
   const price = liquidity / totalSupply;
   
-  // Volume is 15-40% of liquidity
-  const volumeMultiplier = 0.15 + Math.random() * 0.25;
-  const volume24h = Math.floor(liquidity * volumeMultiplier);
+  // Volume is 25-35% of liquidity for realistic trading
+  const volumeMultiplier = 0.25 + Math.random() * 0.1;
+  const volume24h = Math.floor(liquidity * volumeMultiplier * 300); // Convert SOL to USD roughly
   
-  // Market Cap = Price * Total Supply
-  const marketCap = Math.floor(price * totalSupply);
+  // Market Cap = Price * Total Supply, converted to USD
+  const marketCap = Math.floor(price * totalSupply * 300); // Rough SOL to USD conversion
   
-  // Price change is random between -20% to +30%
-  const priceChange24h = Math.random() * 50 - 20;
+  // Price change is random between -15% to +25%
+  const priceChange24h = Math.random() * 40 - 15;
   
   // Starting transactions
-  const transactions = Math.floor(Math.random() * 80) + 20;
+  const transactions = Math.floor(Math.random() * 50) + 25;
   
   return { price, volume24h, marketCap, priceChange24h, transactions };
 }
