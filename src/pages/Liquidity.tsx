@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import PaymentModal from '@/components/PaymentModal';
 import LiquiditySuccessModal from '@/components/LiquiditySuccessModal';
+import { updateTokenLiquidity } from '@/pages/Portfolio';
 import { toast } from '@/hooks/use-toast';
 
 const Liquidity = () => {
@@ -106,20 +107,8 @@ const Liquidity = () => {
     setShowPaymentModal(false);
     setShowSuccessModal(true);
     
-    // Update token with liquidity
-    const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
-    const updatedTokens = existingTokens.map((token: any) => {
-      if (token.name === formData.tokenName) {
-        return { 
-          ...token, 
-          liquidity: parseFloat(formData.lpSize),
-          hasLiquidity: true,
-          liquidityAdded: Date.now()
-        };
-      }
-      return token;
-    });
-    localStorage.setItem('createdTokens', JSON.stringify(updatedTokens));
+    // Update session token with liquidity
+    updateTokenLiquidity(formData.tokenName, parseFloat(formData.lpSize));
   };
 
   return (

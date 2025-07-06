@@ -155,6 +155,61 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Footer */}
+        <footer className="py-12 px-4 border-t border-white/10">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div className="md:col-span-2">
+                <div className="flex items-center space-x-2 mb-4">
+                  <img 
+                    src="https://i.ibb.co/8nVTNNzh/Omnipad.png" 
+                    alt="Omnipad" 
+                    className="w-8 h-8"
+                  />
+                  <span className="text-xl font-bold text-gradient">Omnipad</span>
+                </div>
+                <p className="text-gray-400 max-w-md">
+                  The most trusted platform for creating and managing SPL tokens on Solana. 
+                  Deploy professional-grade tokens in seconds.
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold mb-4">Resources</h4>
+                <div className="space-y-2">
+                  <Link to="/terms" className="block text-gray-400 hover:text-white transition-colors">
+                    Terms of Service
+                  </Link>
+                  <Link to="/privacy" className="block text-gray-400 hover:text-white transition-colors">
+                    Privacy Policy
+                  </Link>
+                  <Link to="/security" className="block text-gray-400 hover:text-white transition-colors">
+                    Security
+                  </Link>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold mb-4">Community</h4>
+                <div className="space-y-2">
+                  <a 
+                    href="https://t.me/omnipadllc" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    Telegram
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <div className="border-t border-white/10 mt-8 pt-8 text-center text-gray-400">
+              <p>&copy; 2024 Omnipad. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </div>
     </Layout>
   );

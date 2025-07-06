@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Clock } from 'lucide-react';
+import { Copy, Clock, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -113,7 +115,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
             <div>
               <div className="text-gray-400 text-sm mb-2">Select network</div>
               <div className="flex items-center text-gray-400 text-xs mb-4">
-                <span className="mr-1">⚠️</span>
+                <AlertTriangle className="w-4 h-4 mr-1 text-yellow-500" />
                 <span>You pay network fee</span>
               </div>
             </div>
@@ -134,7 +136,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-12">
                   <div className="flex items-center space-x-3">
                     <img 
-                      src="https://cryptologos.cc/logos/solana-sol-logo.png" 
+                      src="https://i.ibb.co/NgkKfdWc/solana.png" 
                       alt="Solana"
                       className="w-6 h-6 rounded-full"
                     />
@@ -150,7 +152,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-12">
                   <div className="flex items-center space-x-3">
                     <img 
-                      src="https://cryptologos.cc/logos/solana-sol-logo.png" 
+                      src="https://i.ibb.co/NgkKfdWc/solana.png" 
                       alt="Solana"
                       className="w-6 h-6 rounded-full"
                     />
@@ -175,7 +177,10 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
             <div className="text-center text-gray-500 text-xs">
               Encrypted & Secure Payment
               <br />
-              By paying you agree to our terms of service
+              By paying you agree to our{' '}
+              <Link to="/terms" className="text-blue-400 hover:text-blue-300 underline">
+                terms of service
+              </Link>
             </div>
           </div>
         ) : (
@@ -189,7 +194,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
             <div>
               <div className="text-gray-400 text-sm mb-2">Select network</div>
               <div className="flex items-center text-gray-400 text-xs mb-4">
-                <span className="mr-1">⚠️</span>
+                <AlertTriangle className="w-4 h-4 mr-1 text-yellow-500" />
                 <span>You pay network fee</span>
               </div>
             </div>
@@ -238,7 +243,10 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
             <div className="text-center text-gray-500 text-xs">
               Encrypted & Secure Payment
               <br />
-              By paying you agree to our terms of service
+              By paying you agree to our{' '}
+              <Link to="/terms" className="text-blue-400 hover:text-blue-300 underline">
+                terms of service
+              </Link>
             </div>
           </div>
         )}
