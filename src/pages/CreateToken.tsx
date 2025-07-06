@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -251,7 +250,7 @@ const CreateToken = () => {
             </div>
 
             {showPreview && (
-              <TokenPreview tokenData={tokenData} />
+              <TokenPreview tokenData={tokenData} onConfirm={handleConfirmCreation} />
             )}
           </div>
         </div>
@@ -268,7 +267,8 @@ const CreateToken = () => {
       <TokenSuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        tokenData={tokenData}
+        tokenName={tokenData.name}
+        tokenSymbol={tokenData.symbol}
       />
     </Layout>
   );
