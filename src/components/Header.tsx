@@ -25,7 +25,7 @@ const Header = () => {
             <span className="text-xl font-bold text-gradient">Omnipad</span>
           </Link>
 
-          <nav className="absolute left-1/2 transform -translate-x-1/2">
+          <nav className="flex items-center justify-center flex-1">
             <div className="flex items-center space-x-8">
               {navItems.map((item) => (
                 <Link

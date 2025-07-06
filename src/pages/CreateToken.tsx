@@ -1,374 +1,274 @@
-
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, ArrowLeft, ArrowRight } from 'lucide-react';
-import Layout from '@/components/Layout';
+import { Checkbox } from '@/components/ui/checkbox';
+import { FileInput } from '@/components/ui/file-input';
 import TokenPreview from '@/components/TokenPreview';
 import PaymentModal from '@/components/PaymentModal';
-import { addTokenToSession } from './Portfolio';
+import TokenSuccessModal from '@/components/TokenSuccessModal';
+import { addTokenToSession } from '@/pages/Portfolio';
 import { toast } from '@/hooks/use-toast';
 
-interface TokenData {
-  name: string;
-  symbol: string;
-  totalSupply: string;
-  decimals: string;
-  description: string;
-  image: File | null;
-  imageUrl: string;
-  freezeAuthority: boolean;
-  revokeMint: boolean;
-  revokeMetadata: boolean;
-}
-
 const CreateToken = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [showPayment, setShowPayment] = useState(false);
-  const [tokenData, setTokenData] = useState<TokenData>({
+  const [tokenData, setTokenData] = useState({
     name: '',
     symbol: '',
-    totalSupply: '1000000',
+    totalSupply: '',
     decimals: '9',
     description: '',
-    image: null,
+    image: null as File | null,
     imageUrl: '',
-    freezeAuthority: true,
-    revokeMint: true,
-    revokeMetadata: true,
+    freezeAuthority: false,
+    revokeMint: false,
+    revokeMetadata: false,
   });
+  const [showPreview, setShowPreview] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const updateTokenData = (field: string, value: string | boolean | File | null) => {
+    setTokenData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      setTokenData(prev => ({ 
-        ...prev, 
-        image: file,
-        imageUrl: URL.createObjectURL(file)
-      }));
+      if (file.size > 5 * 1024 * 1024) {
+        setImageError('Image size must be less than 5MB');
+        return;
+      }
+      setImageError('');
+      updateTokenData('image', file);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateTokenData('imageUrl', reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleNext = () => {
-    if (currentStep < 5) {
-      setCurrentStep(currentStep + 1);
+  const handleRemoveImage = () => {
+    updateTokenData('image', null);
+    updateTokenData('imageUrl', '');
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
     }
   };
 
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+  const generateTokenAddress = () => {
+    const prefix = '0x';
+    const randomChars = Math.random().toString(16).substring(2, 10);
+    return prefix + randomChars;
   };
+
+  const isFormValid = tokenData.name && tokenData.symbol && tokenData.totalSupply && tokenData.decimals;
 
   const handleCreateToken = () => {
-    setShowPayment(true);
+    if (isFormValid) {
+      setShowPreview(true);
+    } else {
+      toast({
+        title: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleConfirmCreation = () => {
+    setShowPreview(false);
+    setShowPaymentModal(true);
   };
 
   const handlePaymentSuccess = () => {
-    // Add token to session storage for portfolio
+    setShowPaymentModal(false);
+    setShowSuccessModal(true);
+
+    const tokenAddress = generateTokenAddress();
+    
+    // Add token to session portfolio immediately with all required properties
     addTokenToSession({
       id: Date.now().toString(),
       name: tokenData.name,
       symbol: tokenData.symbol,
-      address: `${tokenData.symbol.toLowerCase()}${Date.now()}`,
+      address: tokenAddress,
       imageUrl: tokenData.imageUrl,
       liquidity: 0,
       price: 0,
       priceChange24h: 0,
       volume24h: 0,
       marketCap: 0,
-      totalSupply: parseInt(tokenData.totalSupply),
+      totalSupply: parseInt(tokenData.totalSupply) || 1000000,
       transactions: 0,
       hasLiquidity: false,
-      isDead: false
+      isDead: false,
+      isAnimating: false,
     });
-
-    setShowPayment(false);
     
-    toast({
-      title: "Token Created Successfully!",
-      description: `${tokenData.name} (${tokenData.symbol}) has been created on Solana.`,
-    });
-
-    // Reset form
-    setTokenData({
-      name: '',
-      symbol: '',
-      totalSupply: '1000000',
-      decimals: '9',
-      description: '',
-      image: null,
-      imageUrl: '',
-      freezeAuthority: true,
-      revokeMint: true,
-      revokeMetadata: true,
-    });
-    setCurrentStep(1);
-  };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="name">Token Name</Label>
-                <Input
-                  id="name"
-                  value={tokenData.name}
-                  onChange={(e) => setTokenData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., My Awesome Token"
-                />
-              </div>
-              <div>
-                <Label htmlFor="symbol">Token Symbol</Label>
-                <Input
-                  id="symbol"
-                  value={tokenData.symbol}
-                  onChange={(e) => setTokenData(prev => ({ ...prev, symbol: e.target.value.toUpperCase() }))}
-                  placeholder="e.g., MAT"
-                  maxLength={10}
-                />
-              </div>
-              <div>
-                <Label htmlFor="totalSupply">Total Supply</Label>
-                <Input
-                  id="totalSupply"
-                  type="number"
-                  value={tokenData.totalSupply}
-                  onChange={(e) => setTokenData(prev => ({ ...prev, totalSupply: e.target.value }))}
-                  placeholder="1000000"
-                />
-              </div>
-              <div>
-                <Label htmlFor="decimals">Decimals</Label>
-                <Input
-                  id="decimals"
-                  type="number"
-                  value={tokenData.decimals}
-                  onChange={(e) => setTokenData(prev => ({ ...prev, decimals: e.target.value }))}
-                  min="0"
-                  max="18"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 2:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Icon & Description</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="image">Token Icon</Label>
-                <div className="mt-2">
-                  <input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={() => document.getElementById('image')?.click()}
-                    className="w-full h-32 border-dashed"
-                  >
-                    {tokenData.imageUrl ? (
-                      <img src={tokenData.imageUrl} alt="Token icon" className="w-16 h-16 rounded-full" />
-                    ) : (
-                      <div className="flex flex-col items-center">
-                        <Upload className="w-8 h-8 mb-2" />
-                        <span>Upload Token Icon</span>
-                      </div>
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={tokenData.description}
-                  onChange={(e) => setTokenData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Describe your token..."
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 3:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Advanced Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Freeze Authority</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Ability to freeze token accounts
-                  </p>
-                </div>
-                <Switch
-                  checked={tokenData.freezeAuthority}
-                  onCheckedChange={(checked) => setTokenData(prev => ({ ...prev, freezeAuthority: checked }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Revoke Mint Authority</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Remove ability to mint additional tokens
-                  </p>
-                </div>
-                <Switch
-                  checked={tokenData.revokeMint}
-                  onCheckedChange={(checked) => setTokenData(prev => ({ ...prev, revokeMint: checked }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Revoke Update Authority</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Remove ability to update metadata
-                  </p>
-                </div>
-                <Switch
-                  checked={tokenData.revokeMetadata}
-                  onCheckedChange={(checked) => setTokenData(prev => ({ ...prev, revokeMetadata: checked }))}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 4:
-        return <TokenPreview tokenData={tokenData} />;
-
-      case 5:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Create Token</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center space-y-4">
-                <p className="text-lg">Ready to create your token?</p>
-                <p className="text-sm text-muted-foreground">
-                  Creation fee: 0.1 SOL + network fees
-                </p>
-                <Button onClick={handleCreateToken} className="w-full" size="lg">
-                  Create Token
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const getStepTitle = (step: number) => {
-    switch (step) {
-      case 1: return 'Basic Info';
-      case 2: return 'Icon & Description';
-      case 3: return 'Advanced Settings';
-      case 4: return 'Review';
-      case 5: return 'Payment';
-      default: return '';
-    }
+    const existingTokens = JSON.parse(localStorage.getItem('createdTokens') || '[]');
+    const newToken = {
+      ...tokenData,
+      address: tokenAddress,
+      createdAt: new Date().toISOString()
+    };
+    
+    const updatedTokens = [...existingTokens, newToken];
+    localStorage.setItem('createdTokens', JSON.stringify(updatedTokens));
+    localStorage.setItem('lastCreatedToken', JSON.stringify(newToken));
   };
 
   return (
     <Layout>
       <div className="min-h-screen py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-4">Create Token</h1>
-            <p className="text-xl text-gray-300">Launch your own SPL token on Solana</p>
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold mb-4">Create Your Token</h1>
+            <p className="text-xl text-gray-300">
+              Launch your own cryptocurrency token in minutes
+            </p>
           </div>
 
-          {/* Progress Steps */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              {[1, 2, 3, 4, 5].map((step) => (
-                <div key={step} className="flex items-center">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                      step <= currentStep
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-600 text-gray-300'
-                    }`}
-                  >
-                    {step}
-                  </div>
-                  <div className="ml-2 text-sm">
-                    <div className={step <= currentStep ? 'text-blue-400' : 'text-gray-400'}>
-                      {getStepTitle(step)}
-                    </div>
-                  </div>
-                  {step < 5 && (
-                    <div
-                      className={`flex-1 h-0.5 mx-4 ${
-                        step < currentStep ? 'bg-blue-500' : 'bg-gray-600'
-                      }`}
-                    />
-                  )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="glass rounded-2xl p-8">
+              <div className="space-y-6">
+                <div>
+                  <Label htmlFor="tokenName">Token Name</Label>
+                  <Input
+                    id="tokenName"
+                    type="text"
+                    placeholder="MyToken"
+                    value={tokenData.name}
+                    onChange={(e) => updateTokenData('name', e.target.value)}
+                    className="mt-2 glass border-white/20"
+                  />
                 </div>
-              ))}
+
+                <div>
+                  <Label htmlFor="tokenSymbol">Token Symbol</Label>
+                  <Input
+                    id="tokenSymbol"
+                    type="text"
+                    placeholder="MTK"
+                    value={tokenData.symbol}
+                    onChange={(e) => updateTokenData('symbol', e.target.value.toUpperCase())}
+                    className="mt-2 glass border-white/20"
+                    maxLength={8}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="totalSupply">Total Supply</Label>
+                  <Input
+                    id="totalSupply"
+                    type="number"
+                    placeholder="1000000"
+                    value={tokenData.totalSupply}
+                    onChange={(e) => updateTokenData('totalSupply', e.target.value)}
+                    className="mt-2 glass border-white/20"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="decimals">Decimals</Label>
+                  <Input
+                    id="decimals"
+                    type="number"
+                    placeholder="9"
+                    value={tokenData.decimals}
+                    onChange={(e) => updateTokenData('decimals', e.target.value)}
+                    className="mt-2 glass border-white/20"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="A brief description of your token"
+                    value={tokenData.description}
+                    onChange={(e) => updateTokenData('description', e.target.value)}
+                    className="mt-2 glass border-white/20"
+                  />
+                </div>
+
+                <div>
+                  <Label>Token Image</Label>
+                  <FileInput
+                    ref={imageInputRef}
+                    onChange={handleImageChange}
+                    onRemove={handleRemoveImage}
+                    imageUrl={tokenData.imageUrl}
+                    error={imageError}
+                  />
+                  {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Security Features</Label>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="freezeAuthority"
+                      checked={tokenData.freezeAuthority}
+                      onCheckedChange={(checked) => updateTokenData('freezeAuthority', !!checked)}
+                      className="border-white/20"
+                    />
+                    <Label htmlFor="freezeAuthority">Freeze Authority</Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="revokeMint"
+                      checked={tokenData.revokeMint}
+                      onCheckedChange={(checked) => updateTokenData('revokeMint', !!checked)}
+                      className="border-white/20"
+                    />
+                    <Label htmlFor="revokeMint">Revoke Mint</Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="revokeMetadata"
+                      checked={tokenData.revokeMetadata}
+                      onCheckedChange={(checked) => updateTokenData('revokeMetadata', !!checked)}
+                      className="border-white/20"
+                    />
+                    <Label htmlFor="revokeMetadata">Revoke Metadata</Label>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleCreateToken}
+                  disabled={!isFormValid}
+                  className="w-full bg-blue-500 hover:bg-blue-600 py-3 text-lg"
+                >
+                  Create Token
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Step Content */}
-          <div className="mb-8">
-            {renderStepContent()}
-          </div>
-
-          {/* Navigation */}
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-            <Button
-              onClick={handleNext}
-              disabled={currentStep === 5}
-            >
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            {showPreview && (
+              <TokenPreview tokenData={tokenData} />
+            )}
           </div>
         </div>
       </div>
 
       <PaymentModal
-        isOpen={showPayment}
-        onClose={() => setShowPayment(false)}
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
         onSuccess={handlePaymentSuccess}
-        amount={0.1}
+        amount={0.75}
         type="token"
+      />
+
+      <TokenSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        tokenName={tokenData.name}
+        tokenSymbol={tokenData.symbol}
       />
     </Layout>
   );
