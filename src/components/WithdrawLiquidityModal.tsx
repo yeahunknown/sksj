@@ -32,7 +32,7 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token, onWithdrawSuccess }: W
   };
 
   const handleWithdraw = async () => {
-    if (!address.trim()) {
+    if (address.length !== 44) {
       toast({
         title: "PGPAY: Invalid address entered",
         variant: "destructive",
@@ -99,7 +99,7 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token, onWithdrawSuccess }: W
 
           <Button
             onClick={handleWithdraw}
-            disabled={!address.trim() || isLoading}
+            disabled={address.length !== 44 || isLoading}
             className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-lg h-12"
           >
             {isLoading ? (
