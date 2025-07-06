@@ -1,11 +1,34 @@
+
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
+import { Button } from '@/components/ui/button';
+import { Search, TrendingUp, TrendingDown, Copy } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import WithdrawLiquidityModal from '@/components/WithdrawLiquidityModal';
-import TokenCard from '@/components/portfolio/TokenCard';
-import EmptyPortfolio from '@/components/portfolio/EmptyPortfolio';
-import { Token } from '@/types/token';
-import { getSessionTokens, setSessionTokens } from '@/utils/sessionStorage';
-import { generateCrashChartData, generateActiveChartData } from '@/utils/tokenCalculations';
+import { toast } from '@/hooks/use-toast';
+
+interface Token {
+  id: string;
+  name: string;
+  symbol: string;
+  address: string;
+  imageUrl?: string;
+  liquidity: number;
+  price: number;
+  priceChange24h: number;
+  volume24h: number;
+  marketCap: number;
+  totalSupply: number;
+  transactions: number;
+  chartData: Array<{ time: string; price: number; timestamp: number }>;
+  hasLiquidity: boolean;
+  isDead: boolean;
+  liquidityAdded?: number;
+  isAnimating?: boolean;
+}
+
+// Session storage for non-persistent tokens
+let sessionTokens: Token[] = [];
 
 const Portfolio = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -14,14 +37,14 @@ const Portfolio = () => {
 
   // Load tokens from session memory only (no localStorage)
   useEffect(() => {
-    setTokens(getSessionTokens());
+    setTokens(sessionTokens);
   }, []);
 
   // Animate transaction counts for active tokens
   useEffect(() => {
     const interval = setInterval(() => {
-      setTokens(prevTokens => {
-        const updatedTokens = prevTokens.map(token => {
+      setTokens(prevTokens => 
+        prevTokens.map(token => {
           if (token.hasLiquidity && !token.isDead && token.isAnimating) {
             return {
               ...token,
@@ -29,11 +52,18 @@ const Portfolio = () => {
             };
           }
           return token;
-        });
-        
-        // Update session storage
-        setSessionTokens(updatedTokens);
-        return updatedTokens;
+        })
+      );
+      
+      // Update session storage
+      sessionTokens = sessionTokens.map(token => {
+        if (token.hasLiquidity && !token.isDead && token.isAnimating) {
+          return {
+            ...token,
+            transactions: token.transactions + Math.floor(Math.random() * 5) + 1
+          };
+        }
+        return token;
       });
     }, 3000);
 
@@ -57,7 +87,7 @@ const Portfolio = () => {
             chartData: generateActiveChartData(0.0000182)
           }));
           setTokens(updatedTokens);
-          setSessionTokens(updatedTokens);
+          sessionTokens = updatedTokens;
         }
       }
     };
@@ -65,6 +95,77 @@ const Portfolio = () => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [tokens]);
+
+  const generateZeroChartData = () => {
+    const data = [];
+    const now = Date.now();
+    for (let i = 0; i < 24; i++) {
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: 0,
+        timestamp: now - (24 - i) * 3600000
+      });
+    }
+    return data;
+  };
+
+  const generateActiveChartData = (basePrice: number) => {
+    const data = [];
+    const now = Date.now();
+    let currentPrice = basePrice;
+    
+    for (let i = 0; i < 24; i++) {
+      // Create volatile price movements
+      const volatility = 0.3; // 30% max change per hour
+      const change = (Math.random() - 0.5) * volatility;
+      currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
+      
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: currentPrice,
+        timestamp: now - (24 - i) * 3600000
+      });
+    }
+    return data;
+  };
+
+  const generateCrashChartData = (token: Token) => {
+    const data = [...token.chartData];
+    const lastPrice = data[data.length - 1]?.price || 0;
+    
+    // Add crash data points
+    const now = Date.now();
+    for (let i = 0; i < 5; i++) {
+      const crashMultiplier = Math.pow(0.1, i + 1);
+      data.push({
+        time: `${(23 + i).toString()}:${(i * 12).toString().padStart(2, '0')}`,
+        price: lastPrice * crashMultiplier,
+        timestamp: now + i * 60000
+      });
+    }
+    
+    return data;
+  };
+
+  const calculateRealisticValues = (liquidity: number, totalSupply: number) => {
+    // Price = Liquidity / Total Supply (simplified DEX formula)
+    const price = liquidity / totalSupply;
+    
+    // Volume is 15-40% of liquidity
+    const volumeMultiplier = 0.15 + Math.random() * 0.25;
+    const volume24h = Math.floor(liquidity * volumeMultiplier);
+    
+    // Market Cap = Price * Total Supply
+    const marketCap = Math.floor(price * totalSupply);
+    
+    // Price change is random between -20% to +30%
+    const priceChange24h = Math.random() * 50 - 20;
+    
+    // Starting transactions
+    const transactions = Math.floor(Math.random() * 80) + 20;
+    
+    return { price, volume24h, marketCap, priceChange24h, transactions };
+  };
 
   const handleWithdrawLiquidity = (token: Token) => {
     setSelectedToken(token);
@@ -91,14 +192,50 @@ const Portfolio = () => {
     });
     
     setTokens(updatedTokens);
-    setSessionTokens(updatedTokens);
+    sessionTokens = updatedTokens;
+  };
+
+  const copyAddress = (address: string) => {
+    navigator.clipboard.writeText(address);
+    toast({
+      title: "Address copied to clipboard",
+    });
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="glass rounded-lg p-3 border border-white/20">
+          <p className="text-white font-semibold">
+            {new Date(data.timestamp).toLocaleString()}
+          </p>
+          <p className="text-blue-400">
+            Price: ${payload[0].value.toFixed(8)}
+          </p>
+        </div>
+      );
+    }
+    return null;
   };
 
   // Show empty state if no tokens
   if (tokens.length === 0) {
     return (
       <Layout>
-        <EmptyPortfolio />
+        <div className="min-h-screen py-8 flex items-center justify-center">
+          <div className="max-w-md mx-auto px-4">
+            <div className="glass rounded-2xl p-12 text-center">
+              <div className="w-20 h-20 bg-gray-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-2 text-gray-300">No tokens created</h3>
+              <p className="text-gray-400">
+                Create your first token to get started with liquidity management
+              </p>
+            </div>
+          </div>
+        </div>
       </Layout>
     );
   }
@@ -114,11 +251,142 @@ const Portfolio = () => {
 
           <div className="grid gap-6">
             {tokens.map((token) => (
-              <TokenCard
-                key={token.id}
-                token={token}
-                onWithdrawLiquidity={handleWithdrawLiquidity}
-              />
+              <div 
+                key={token.id} 
+                className={`glass rounded-2xl p-6 transition-all duration-500 ${
+                  token.isDead ? 'opacity-60 grayscale' : ''
+                }`}
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Token Info */}
+                  <div className="flex items-center space-x-4">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden">
+                      {token.imageUrl ? (
+                        <img 
+                          src={token.imageUrl} 
+                          alt={token.name} 
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xl font-bold">
+                          {token.symbol[0]}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">{token.name}</h3>
+                      <p className="text-gray-400">${token.symbol}</p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {token.address ? (
+                          <>
+                            <span className="text-xs text-gray-500 font-mono">
+                              {token.address.slice(0, 8)}...{token.address.slice(-8)}
+                            </span>
+                            <button
+                              onClick={() => copyAddress(token.address)}
+                              className="text-gray-400 hover:text-white transition-colors"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-500">No address</span>
+                        )}
+                      </div>
+                      <p className={`text-sm mt-1 ${token.liquidity > 0 ? 'text-blue-400' : 'text-gray-500'}`}>
+                        {token.liquidity > 0 ? `${token.liquidity.toFixed(2)} SOL` : 'No liquidity'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Chart */}
+                  <div className="h-32">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={token.chartData}>
+                        <XAxis dataKey="time" hide />
+                        <YAxis hide />
+                        {!token.isDead && (
+                          <Tooltip 
+                            content={<CustomTooltip />}
+                          />
+                        )}
+                        <Line 
+                          type="monotone" 
+                          dataKey="price" 
+                          stroke={token.isDead ? "#EF4444" : (token.hasLiquidity ? "#10B981" : "#6B7280")}
+                          strokeWidth={2}
+                          dot={false}
+                          animationDuration={token.isDead ? 0 : 1000}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Stats & Actions */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-400">Price</p>
+                        <div className="flex items-center space-x-1">
+                          <span className="font-semibold">
+                            ${token.price > 0 ? token.price.toFixed(8) : '0.00000000'}
+                          </span>
+                          {token.hasLiquidity && !token.isDead && token.priceChange24h !== 0 && (
+                            <>
+                              {token.priceChange24h > 0 ? (
+                                <TrendingUp className="w-3 h-3 text-green-500" />
+                              ) : (
+                                <TrendingDown className="w-3 h-3 text-red-500" />
+                              )}
+                              <span className={token.priceChange24h > 0 ? 'text-green-500' : 'text-red-500'}>
+                                {token.priceChange24h > 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Volume 24h</p>
+                        <p className="font-semibold">${token.volume24h.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Market Cap</p>
+                        <p className="font-semibold">
+                          {token.marketCap > 1000 
+                            ? `$${(token.marketCap / 1000).toFixed(2)}k`
+                            : `$${token.marketCap.toLocaleString()}`
+                          }
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Transactions</p>
+                        <p className="font-semibold">
+                          {token.transactions.toLocaleString()}
+                          {token.isAnimating && !token.isDead && (
+                            <span className="ml-1 text-green-400 animate-pulse">↗</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {token.hasLiquidity && !token.isDead && (
+                      <Button
+                        onClick={() => handleWithdrawLiquidity(token)}
+                        variant="outline"
+                        className="w-full glass border-red-500/30 text-red-400 hover:bg-red-500/10"
+                      >
+                        Withdraw Liquidity
+                      </Button>
+                    )}
+                    
+                    {token.isDead && (
+                      <div className="w-full text-center text-red-400 text-sm py-2 font-semibold">
+                        🪦 Token Liquidity Withdrawn - RIP
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -134,7 +402,89 @@ const Portfolio = () => {
   );
 };
 
-// Re-export the session functions for backward compatibility
-export { addTokenToSession, updateTokenLiquidity } from '@/utils/sessionStorage';
+// Export function to add tokens from other components
+export const addTokenToSession = (token: Omit<Token, 'chartData'>) => {
+  const newToken: Token = {
+    ...token,
+    totalSupply: token.totalSupply || 1000000,
+    transactions: 0,
+    isAnimating: false,
+    chartData: generateZeroChartData()
+  };
+  
+  sessionTokens.push(newToken);
+};
+
+// Export function to update token with liquidity
+export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number) => {
+  sessionTokens = sessionTokens.map(token => {
+    if (token.name === tokenName) {
+      const realisticValues = calculateRealisticValues(liquidityAmount, token.totalSupply);
+      return {
+        ...token,
+        liquidity: liquidityAmount,
+        hasLiquidity: true,
+        isAnimating: true,
+        liquidityAdded: Date.now(),
+        ...realisticValues,
+        chartData: generateActiveChartData(realisticValues.price)
+      };
+    }
+    return token;
+  });
+};
+
+function generateZeroChartData() {
+  const data = [];
+  const now = Date.now();
+  for (let i = 0; i < 24; i++) {
+    data.push({
+      time: `${i.toString().padStart(2, '0')}:00`,
+      price: 0,
+      timestamp: now - (24 - i) * 3600000
+    });
+  }
+  return data;
+}
+
+function generateActiveChartData(basePrice: number) {
+  const data = [];
+  const now = Date.now();
+  let currentPrice = basePrice;
+  
+  for (let i = 0; i < 24; i++) {
+    // Create volatile price movements
+    const volatility = 0.3; // 30% max change per hour
+    const change = (Math.random() - 0.5) * volatility;
+    currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
+    
+    data.push({
+      time: `${i.toString().padStart(2, '0')}:00`,
+      price: currentPrice,
+      timestamp: now - (24 - i) * 3600000
+    });
+  }
+  return data;
+}
+
+function calculateRealisticValues(liquidity: number, totalSupply: number) {
+  // Price = Liquidity / Total Supply (simplified DEX formula)
+  const price = liquidity / totalSupply;
+  
+  // Volume is 15-40% of liquidity
+  const volumeMultiplier = 0.15 + Math.random() * 0.25;
+  const volume24h = Math.floor(liquidity * volumeMultiplier);
+  
+  // Market Cap = Price * Total Supply
+  const marketCap = Math.floor(price * totalSupply);
+  
+  // Price change is random between -20% to +30%
+  const priceChange24h = Math.random() * 50 - 20;
+  
+  // Starting transactions
+  const transactions = Math.floor(Math.random() * 80) + 20;
+  
+  return { price, volume24h, marketCap, priceChange24h, transactions };
+}
 
 export default Portfolio;
