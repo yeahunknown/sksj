@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +20,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   const [currency] = useState('SOL');
   const [network] = useState('Solana');
 
-  const recipientAddress = '7vN9GTLqn5HCEzzyVFrPTgeszdUTJ8bJ1sPaMNJAbx';
+  const recipientAddress = '2jcMCafRLfJgDQEfjJ9SctbYZtNwXSmqdzr8jwyZYVyA';
 
   useEffect(() => {
     if (!isOpen) {
