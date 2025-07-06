@@ -267,8 +267,7 @@ const CreateToken = () => {
       <TokenSuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        tokenName={tokenData.name}
-        tokenSymbol={tokenData.symbol}
+        tokenData={tokenData}
       />
     </Layout>
   );
