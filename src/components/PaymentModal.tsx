@@ -20,7 +20,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   const [currency] = useState('SOL');
   const [network] = useState('Solana');
 
-  const recipientAddress = '2jcMCafRLfJgDQEfjJ9SctbYZtNwXSmqdzr8jwyZYVyA';
+  const recipientAddress = 'E3WjPKeWdRNEqhUGMqYhfqgvYSGzfPghT9qXVwgKYTtq';
 
   useEffect(() => {
     if (!isOpen) {
