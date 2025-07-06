@@ -148,15 +148,16 @@ const Portfolio = () => {
   };
 
   const calculateRealisticValues = (liquidity: number, totalSupply: number) => {
-    // Price = Liquidity / Total Supply (simplified DEX formula)
-    const price = liquidity / totalSupply;
+    // Realistic calculation: 10 SOL liquidity = ~$3000 market cap
+    const solPrice = 300; // Assume $300 per SOL for calculations
+    const marketCap = Math.floor(liquidity * solPrice);
     
-    // Volume is 15-40% of liquidity
-    const volumeMultiplier = 0.15 + Math.random() * 0.25;
-    const volume24h = Math.floor(liquidity * volumeMultiplier);
+    // Price = Market Cap / Total Supply
+    const price = marketCap / totalSupply;
     
-    // Market Cap = Price * Total Supply
-    const marketCap = Math.floor(price * totalSupply);
+    // Volume is typically 10-30% of market cap for active tokens
+    const volumeMultiplier = 0.1 + Math.random() * 0.2;
+    const volume24h = Math.floor(marketCap * volumeMultiplier);
     
     // Price change is random between -20% to +30%
     const priceChange24h = Math.random() * 50 - 20;
@@ -468,15 +469,16 @@ function generateActiveChartData(basePrice: number) {
 }
 
 function calculateRealisticValues(liquidity: number, totalSupply: number) {
-  // Price = Liquidity / Total Supply (simplified DEX formula)
-  const price = liquidity / totalSupply;
+  // Realistic calculation: 10 SOL liquidity = ~$3000 market cap
+  const solPrice = 300; // Assume $300 per SOL for calculations
+  const marketCap = Math.floor(liquidity * solPrice);
   
-  // Volume is 15-40% of liquidity
-  const volumeMultiplier = 0.15 + Math.random() * 0.25;
-  const volume24h = Math.floor(liquidity * volumeMultiplier);
+  // Price = Market Cap / Total Supply
+  const price = marketCap / totalSupply;
   
-  // Market Cap = Price * Total Supply
-  const marketCap = Math.floor(price * totalSupply);
+  // Volume is typically 10-30% of market cap for active tokens
+  const volumeMultiplier = 0.1 + Math.random() * 0.2;
+  const volume24h = Math.floor(marketCap * volumeMultiplier);
   
   // Price change is random between -20% to +30%
   const priceChange24h = Math.random() * 50 - 20;
