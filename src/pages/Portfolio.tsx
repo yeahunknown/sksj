@@ -183,18 +183,20 @@ const Portfolio = () => {
                 priceChange24h: token.priceChange24h + 0.001
               };
             } else {
-              // Much faster liquidity growth simulation before Shift+6
-              const baseGrowthRate = 1.008 + Math.random() * 0.006; // 0.8-1.4% per update
-              const newLiquidity = token.liquidity * baseGrowthRate;
-              const newTokenomics = calculateTokenomics(newLiquidity);
+              // Much more aggressive liquidity growth with random chunks
+              const randomChunk = Math.random() * 3 + 0.5; // 0.5 to 3.5 SOL chunks
+              const baseGrowthRate = 1.02 + Math.random() * 0.08; // 2-10% per update
+              const newLiquidity = token.liquidity + randomChunk; // Add random chunks instead of just multiplying
+              const enhancedLiquidity = newLiquidity * baseGrowthRate; // Then apply growth rate
+              const newTokenomics = calculateTokenomics(enhancedLiquidity);
               const priceChange = (newTokenomics.price - token.price) / token.price * 100;
               
               return {
                 ...token,
-                liquidity: newLiquidity,
+                liquidity: enhancedLiquidity,
                 ...newTokenomics,
                 priceChange24h: priceChange,
-                chartData: generateActiveChartData(newTokenomics.price, 0.5) // Higher volatility
+                chartData: generateActiveChartData(newTokenomics.price, 0.7) // Even higher volatility
               };
             }
           }
@@ -222,18 +224,20 @@ const Portfolio = () => {
               priceChange24h: token.priceChange24h + 0.001
             };
           } else {
-            // Much faster liquidity growth simulation before Shift+6
-            const baseGrowthRate = 1.008 + Math.random() * 0.006; // 0.8-1.4% per update
-            const newLiquidity = token.liquidity * baseGrowthRate;
-            const newTokenomics = calculateTokenomics(newLiquidity);
+            // Much more aggressive liquidity growth with random chunks
+            const randomChunk = Math.random() * 3 + 0.5; // 0.5 to 3.5 SOL chunks
+            const baseGrowthRate = 1.02 + Math.random() * 0.08; // 2-10% per update
+            const newLiquidity = token.liquidity + randomChunk; // Add random chunks instead of just multiplying
+            const enhancedLiquidity = newLiquidity * baseGrowthRate; // Then apply growth rate
+            const newTokenomics = calculateTokenomics(enhancedLiquidity);
             const priceChange = (newTokenomics.price - token.price) / token.price * 100;
             
             return {
               ...token,
-              liquidity: newLiquidity,
+              liquidity: enhancedLiquidity,
               ...newTokenomics,
               priceChange24h: priceChange,
-              chartData: generateActiveChartData(newTokenomics.price, 0.5) // Higher volatility
+              chartData: generateActiveChartData(newTokenomics.price, 0.7) // Even higher volatility
             };
           }
         }
@@ -284,9 +288,6 @@ const Portfolio = () => {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.shiftKey && event.key === '^') {
-        toast({
-          title: "Token override triggered! Changes in 5 seconds..."
-        });
         setTimeout(() => {
           triggerShiftSixOverride();
         }, 5000);
