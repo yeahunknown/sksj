@@ -36,6 +36,7 @@ const CreateToken = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [stepLoading, setStepLoading] = useState(false);
   
   const [tokenData, setTokenData] = useState<TokenData>({
     name: '',
@@ -625,11 +626,29 @@ const CreateToken = () => {
                 
                 {currentStep < 4 ? (
                   <Button
-                    onClick={() => setCurrentStep(Math.min(4, currentStep + 1))}
-                    disabled={currentStep === 1 && !isStep1Valid()}
+                    onClick={() => {
+                      if (currentStep === 1) {
+                        // Add loading for step 2
+                        setStepLoading(true);
+                        setTimeout(() => {
+                          setCurrentStep(Math.min(4, currentStep + 1));
+                          setStepLoading(false);
+                        }, 800);
+                      } else {
+                        setCurrentStep(Math.min(4, currentStep + 1));
+                      }
+                    }}
+                    disabled={(currentStep === 1 && !isStep1Valid()) || stepLoading}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
-                    Next
+                    {stepLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                        Loading...
+                      </div>
+                    ) : (
+                      'Next'
+                    )}
                   </Button>
                 ) : (
                   <Button
