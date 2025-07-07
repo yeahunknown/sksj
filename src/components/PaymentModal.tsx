@@ -139,6 +139,11 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
     setPaymentError('');
     
     try {
+      // Validate transaction signature format
+      if (!signature || signature.length < 80 || signature.length > 90) {
+        throw new Error('Invalid transaction signature format. Please enter a valid Solana transaction signature.');
+      }
+      
       await verifyPaymentWithHelius(signature);
       onSuccess();
     } catch (error: any) {
