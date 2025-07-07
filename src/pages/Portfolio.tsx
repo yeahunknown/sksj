@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,6 @@ import { Search, TrendingUp, TrendingDown, Copy } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import WithdrawLiquidityModal from '@/components/WithdrawLiquidityModal';
 import { toast } from '@/hooks/use-toast';
-
 interface Token {
   id: string;
   name: string;
@@ -18,7 +16,10 @@ interface Token {
   priceChange24h: number;
   volume24h: number;
   marketCap: number;
-  chartData: Array<{ time: string; price: number }>;
+  chartData: Array<{
+    time: string;
+    price: number;
+  }>;
   hasLiquidity: boolean;
   isDead: boolean;
   liquidityAdded?: number;
@@ -27,8 +28,9 @@ interface Token {
 
 // Session storage for non-persistent tokens
 let sessionTokens: Token[] = [];
-let updateIntervals: { [key: string]: NodeJS.Timeout } = {};
-
+let updateIntervals: {
+  [key: string]: NodeJS.Timeout;
+} = {};
 const Portfolio = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
@@ -44,7 +46,6 @@ const Portfolio = () => {
         startTokenUpdates(token.id);
       }
     });
-
     return () => {
       // Cleanup intervals
       Object.values(updateIntervals).forEach(clearInterval);
@@ -54,10 +55,10 @@ const Portfolio = () => {
   // Calculate realistic tokenomics based on liquidity
   const calculateTokenomics = (liquidity: number) => {
     // Base calculations - realistic for small cap tokens
-    const basePrice = (liquidity * 0.000001) + Math.random() * 0.000005;
+    const basePrice = liquidity * 0.000001 + Math.random() * 0.000005;
     const volume24h = liquidity * (8 + Math.random() * 12); // 8-20x liquidity
     const marketCap = basePrice * 1000000000; // Assuming 1B supply
-    
+
     return {
       price: basePrice,
       volume24h: Math.round(volume24h),
@@ -69,29 +70,27 @@ const Portfolio = () => {
   const generateActiveChartData = (basePrice: number, volatility: number = 0.3) => {
     const data = [];
     let currentPrice = basePrice;
-    
     for (let i = 0; i < 24; i++) {
       // Add realistic volatility with trend
       const trendFactor = Math.sin(i * 0.3) * 0.1; // Subtle trend
       const volatilityFactor = (Math.random() - 0.5) * volatility;
       const pumpChance = Math.random();
-      
+
       // Occasional small pumps and dips
       let pumpFactor = 0;
-      if (pumpChance < 0.05) { // 5% chance of pump
+      if (pumpChance < 0.05) {
+        // 5% chance of pump
         pumpFactor = 0.15 + Math.random() * 0.25;
-      } else if (pumpChance < 0.1) { // 5% chance of dip
+      } else if (pumpChance < 0.1) {
+        // 5% chance of dip
         pumpFactor = -(0.1 + Math.random() * 0.15);
       }
-      
       currentPrice = currentPrice * (1 + trendFactor + volatilityFactor + pumpFactor);
-      
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
         price: Math.max(currentPrice, basePrice * 0.1) // Prevent going too low
       });
     }
-    
     return data;
   };
 
@@ -100,26 +99,26 @@ const Portfolio = () => {
     const data = [];
     const basePrice = 0.00000820;
     const targetPrice = 0.00001820;
-    
+
     // Smooth ramp-up for first 18 hours
     for (let i = 0; i < 18; i++) {
       const progress = i / 17;
-      const price = basePrice + (progress * (targetPrice - basePrice) * 0.7);
+      const price = basePrice + progress * (targetPrice - basePrice) * 0.7;
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
         price: price
       });
     }
-    
+
     // Big green spike
     for (let i = 18; i < 21; i++) {
-      const spikeMultiplier = 1 + ((i - 17) * 0.8);
+      const spikeMultiplier = 1 + (i - 17) * 0.8;
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
         price: targetPrice * spikeMultiplier
       });
     }
-    
+
     // Level out at target price
     for (let i = 21; i < 24; i++) {
       data.push({
@@ -127,7 +126,6 @@ const Portfolio = () => {
         price: targetPrice
       });
     }
-    
     return data;
   };
 
@@ -154,14 +152,12 @@ const Portfolio = () => {
   // Start live updates for a token
   const startTokenUpdates = (tokenId: string) => {
     if (updateIntervals[tokenId]) return;
-
     updateIntervals[tokenId] = setInterval(() => {
       setTokens(prevTokens => {
         return prevTokens.map(token => {
           if (token.id === tokenId && token.hasLiquidity && !token.isDead && !token.isOverridden) {
             const newTokenomics = calculateTokenomics(token.liquidity);
-            const priceChange = ((newTokenomics.price - token.price) / token.price) * 100;
-            
+            const priceChange = (newTokenomics.price - token.price) / token.price * 100;
             return {
               ...token,
               ...newTokenomics,
@@ -172,13 +168,12 @@ const Portfolio = () => {
           return token;
         });
       });
-      
+
       // Update session tokens
       sessionTokens = sessionTokens.map(token => {
         if (token.id === tokenId && token.hasLiquidity && !token.isDead && !token.isOverridden) {
           const newTokenomics = calculateTokenomics(token.liquidity);
-          const priceChange = ((newTokenomics.price - token.price) / token.price) * 100;
-          
+          const priceChange = (newTokenomics.price - token.price) / token.price * 100;
           return {
             ...token,
             ...newTokenomics,
@@ -206,7 +201,6 @@ const Portfolio = () => {
         if (tokens.length > 0) {
           // Stop all updates
           Object.keys(updateIntervals).forEach(stopTokenUpdates);
-          
           const updatedTokens = tokens.map(token => ({
             ...token,
             liquidity: 59.67,
@@ -217,31 +211,25 @@ const Portfolio = () => {
             chartData: generateOverrideChartData(),
             isOverridden: true
           }));
-          
           setTokens(updatedTokens);
           sessionTokens = updatedTokens;
-          
           toast({
             title: "Developer Override Activated",
-            description: "All tokens locked to demo values",
+            description: "All tokens locked to demo values"
           });
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [tokens]);
-
   const handleWithdrawLiquidity = (token: Token) => {
     setSelectedToken(token);
     setShowWithdrawModal(true);
   };
-
   const handleWithdrawSuccess = (tokenId: string) => {
     // Stop updates for this token
     stopTokenUpdates(tokenId);
-    
     const updatedTokens = tokens.map(token => {
       if (token.id === tokenId) {
         return {
@@ -258,22 +246,19 @@ const Portfolio = () => {
       }
       return token;
     });
-    
     setTokens(updatedTokens);
     sessionTokens = updatedTokens;
   };
-
   const copyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
     toast({
-      title: "Address copied to clipboard",
+      title: "Address copied to clipboard"
     });
   };
 
   // Show empty state if no tokens
   if (tokens.length === 0) {
-    return (
-      <Layout>
+    return <Layout>
         <div className="min-h-screen py-8 flex items-center justify-center">
           <div className="max-w-md mx-auto px-4">
             <div className="glass rounded-2xl p-12 text-center">
@@ -287,12 +272,9 @@ const Portfolio = () => {
             </div>
           </div>
         </div>
-      </Layout>
-    );
+      </Layout>;
   }
-
-  return (
-    <Layout>
+  return <Layout>
       <div className="min-h-screen py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="mb-8">
@@ -301,50 +283,32 @@ const Portfolio = () => {
           </div>
 
           <div className="grid gap-6">
-            {tokens.map((token) => (
-              <div key={token.id} className={`glass rounded-2xl p-6 transition-all duration-300 ${token.isDead ? 'opacity-60' : ''} ${token.isOverridden ? 'ring-2 ring-yellow-500/30' : ''}`}>
+            {tokens.map(token => <div key={token.id} className={`glass rounded-2xl p-6 transition-all duration-300 ${token.isDead ? 'opacity-60' : ''} ${token.isOverridden ? 'ring-2 ring-yellow-500/30' : ''}`}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Token Info */}
                   <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden">
-                      {token.imageUrl ? (
-                        <img 
-                          src={token.imageUrl} 
-                          alt={token.name} 
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xl font-bold">
+                      {token.imageUrl ? <img src={token.imageUrl} alt={token.name} className="w-full h-full object-cover rounded-full" /> : <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xl font-bold">
                           {token.symbol[0]}
-                        </div>
-                      )}
+                        </div>}
                     </div>
                     <div>
                       <h3 className="text-xl font-bold">{token.name}</h3>
                       <p className="text-gray-400">${token.symbol}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        {token.address ? (
-                          <>
+                        {token.address ? <>
                             <span className="text-xs text-gray-500 font-mono">
                               {token.address.slice(0, 8)}...{token.address.slice(-8)}
                             </span>
-                            <button
-                              onClick={() => copyAddress(token.address)}
-                              className="text-gray-400 hover:text-white transition-colors"
-                            >
+                            <button onClick={() => copyAddress(token.address)} className="text-gray-400 hover:text-white transition-colors">
                               <Copy className="w-3 h-3" />
                             </button>
-                          </>
-                        ) : (
-                          <span className="text-xs text-gray-500">No address</span>
-                        )}
+                          </> : <span className="text-xs text-gray-500">No address</span>}
                       </div>
                       <p className={`text-sm mt-1 ${token.liquidity > 0 ? 'text-blue-400' : 'text-gray-500'}`}>
                         {token.liquidity > 0 ? `${token.liquidity.toFixed(2)} SOL` : 'No liquidity'}
                       </p>
-                      {token.isOverridden && (
-                        <span className="text-xs text-yellow-400 font-semibold">DEMO MODE</span>
-                      )}
+                      {token.isOverridden && <span className="text-xs font-semibold text-[#ab9864]">$1,000+ TOKEN</span>}
                     </div>
                   </div>
 
@@ -354,14 +318,7 @@ const Portfolio = () => {
                       <LineChart data={token.chartData}>
                         <XAxis dataKey="time" hide />
                         <YAxis hide />
-                        <Line 
-                          type="monotone" 
-                          dataKey="price" 
-                          stroke={token.isDead ? "#EF4444" : (token.priceChange24h >= 0 ? "#10B981" : "#EF4444")}
-                          strokeWidth={2}
-                          dot={false}
-                          animationDuration={token.isDead ? 1000 : 300}
-                        />
+                        <Line type="monotone" dataKey="price" stroke={token.isDead ? "#EF4444" : token.priceChange24h >= 0 ? "#10B981" : "#EF4444"} strokeWidth={2} dot={false} animationDuration={token.isDead ? 1000 : 300} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -375,18 +332,12 @@ const Portfolio = () => {
                           <span className="font-semibold">
                             ${token.price > 0 ? token.price.toFixed(8) : '0.00000000'}
                           </span>
-                          {token.hasLiquidity && !token.isDead && token.priceChange24h !== 0 && (
-                            <>
-                              {token.priceChange24h > 0 ? (
-                                <TrendingUp className="w-3 h-3 text-green-500" />
-                              ) : (
-                                <TrendingDown className="w-3 h-3 text-red-500" />
-                              )}
+                          {token.hasLiquidity && !token.isDead && token.priceChange24h !== 0 && <>
+                              {token.priceChange24h > 0 ? <TrendingUp className="w-3 h-3 text-green-500" /> : <TrendingDown className="w-3 h-3 text-red-500" />}
                               <span className={token.priceChange24h > 0 ? 'text-green-500' : 'text-red-500'}>
                                 {token.priceChange24h > 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
                               </span>
-                            </>
-                          )}
+                            </>}
                         </div>
                       </div>
                       <div>
@@ -405,37 +356,22 @@ const Portfolio = () => {
                       </div>
                     </div>
                     
-                    {token.hasLiquidity && !token.isDead && (
-                      <Button
-                        onClick={() => handleWithdrawLiquidity(token)}
-                        variant="outline"
-                        className="w-full glass border-red-500/30 text-red-400 hover:bg-red-500/10"
-                      >
+                    {token.hasLiquidity && !token.isDead && <Button onClick={() => handleWithdrawLiquidity(token)} variant="outline" className="w-full glass border-red-500/30 text-red-400 hover:bg-red-500/10">
                         Withdraw Liquidity
-                      </Button>
-                    )}
+                      </Button>}
                     
-                    {token.isDead && (
-                      <div className="w-full text-center text-red-400 text-sm py-2">
+                    {token.isDead && <div className="w-full text-center text-red-400 text-sm py-2">
                         Token Liquidity Withdrawn
-                      </div>
-                    )}
+                      </div>}
                   </div>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </div>
 
-      <WithdrawLiquidityModal
-        isOpen={showWithdrawModal}
-        onClose={() => setShowWithdrawModal(false)}
-        token={selectedToken}
-        onWithdrawSuccess={handleWithdrawSuccess}
-      />
-    </Layout>
-  );
+      <WithdrawLiquidityModal isOpen={showWithdrawModal} onClose={() => setShowWithdrawModal(false)} token={selectedToken} onWithdrawSuccess={handleWithdrawSuccess} />
+    </Layout>;
 };
 
 // Export function to add tokens from other components
@@ -449,12 +385,13 @@ export const addTokenToSession = (token: Omit<Token, 'chartData' | 'liquidity' |
     marketCap: 0,
     hasLiquidity: false,
     isDead: false,
-    chartData: Array.from({ length: 24 }, (_, i) => ({
+    chartData: Array.from({
+      length: 24
+    }, (_, i) => ({
       time: `${i.toString().padStart(2, '0')}:00`,
       price: 0
     }))
   };
-  
   sessionTokens.push(newToken);
 };
 
@@ -464,17 +401,18 @@ export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number)
     if (token.name === tokenName) {
       const tokenomics = {
         liquidity: liquidityAmount,
-        price: (liquidityAmount * 0.000001) + Math.random() * 0.000005,
+        price: liquidityAmount * 0.000001 + Math.random() * 0.000005,
         volume24h: Math.round(liquidityAmount * (8 + Math.random() * 12)),
-        marketCap: Math.round(((liquidityAmount * 0.000001) + Math.random() * 0.000005) * 1000000000)
+        marketCap: Math.round((liquidityAmount * 0.000001 + Math.random() * 0.000005) * 1000000000)
       };
-      
       return {
         ...token,
         ...tokenomics,
         hasLiquidity: true,
         priceChange24h: 0,
-        chartData: Array.from({ length: 24 }, (_, i) => ({
+        chartData: Array.from({
+          length: 24
+        }, (_, i) => ({
           time: `${i.toString().padStart(2, '0')}:00`,
           price: tokenomics.price * (0.8 + Math.random() * 0.4)
         })),
@@ -484,5 +422,4 @@ export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number)
     return token;
   });
 };
-
 export default Portfolio;
