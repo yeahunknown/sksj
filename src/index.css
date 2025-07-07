@@ -86,6 +86,22 @@
   }
 }
 
+/* Contact button styling */
+.contact-button {
+  color: white !important;
+}
+
+.contact-button:hover,
+.contact-button:focus,
+.contact-button:active,
+.contact-button:visited {
+  color: white !important;
+}
+
+.contact-button svg {
+  color: white !important;
+}
+
 @layer base {
   * {
     @apply border-border;
