@@ -69,8 +69,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
 
   const verifyPaymentWithHelius = async (txSignature: string) => {
     try {
-      // TODO: Replace with your actual Helius RPC endpoint
-      const heliusRpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY';
+      const heliusRpcUrl = 'https://mainnet.helius-rpc.com/?api-key=33336ba1-7c13-4015-8ab5-a4fbfe0a6bb2';
       
       const response = await fetch(heliusRpcUrl, {
         method: 'POST',
