@@ -313,6 +313,10 @@ const CreateToken = () => {
               {/* Step 3: Advanced Settings */}
               {currentStep === 3 && (
                 <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <div className="text-3xl font-bold text-blue-400">{calculatePrice().toFixed(1)} SOL</div>
+                    <div className="text-gray-400 text-sm">Total Cost</div>
+                  </div>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
                       <div className="flex items-center space-x-3">

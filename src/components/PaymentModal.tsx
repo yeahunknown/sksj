@@ -106,29 +106,26 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
         throw new Error('Transaction failed or not confirmed');
       }
 
-      // Verify the payment details
+      // Verify the payment details - accept payment to any wallet
       const preBalances = transaction.meta.preBalances;
       const postBalances = transaction.meta.postBalances;
       const accounts = transaction.transaction.message.accountKeys;
 
-      // Find the recipient address in the accounts
-      const recipientIndex = accounts.findIndex((account: string) => account === recipientAddress);
-      
-      if (recipientIndex === -1) {
-        throw new Error('Recipient address not found in transaction');
-      }
-
-      // Calculate the amount received (in lamports)
-      const amountReceived = postBalances[recipientIndex] - preBalances[recipientIndex];
+      // Check if any account received the expected amount
       const expectedAmount = Math.round(amount * 1e9); // Convert SOL to lamports
-      
-      // Allow for small fee variations (within 0.001 SOL)
       const tolerance = 0.001 * 1e9; // 0.001 SOL in lamports
       
-      if (Math.abs(amountReceived - expectedAmount) > tolerance) {
-        const receivedSOL = (amountReceived / 1e9).toFixed(6);
-        const expectedSOL = amount.toFixed(6);
-        throw new Error(`Incorrect amount received. Expected ${expectedSOL} SOL, but received ${receivedSOL} SOL`);
+      let paymentFound = false;
+      for (let i = 0; i < accounts.length; i++) {
+        const amountReceived = postBalances[i] - preBalances[i];
+        if (Math.abs(amountReceived - expectedAmount) <= tolerance && amountReceived > 0) {
+          paymentFound = true;
+          break;
+        }
+      }
+      
+      if (!paymentFound) {
+        throw new Error('Payment Not Found - Either use a different wallet or contact support.');
       }
 
       return true;
