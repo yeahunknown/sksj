@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Upload, X } from 'lucide-react';
 
 interface FileInputProps {
-  onChange: (file: File | null) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemove: () => void;
   imageUrl?: string;
   error?: string;
@@ -12,11 +12,6 @@ interface FileInputProps {
 
 const FileInput = React.forwardRef<HTMLInputElement, FileInputProps>(
   ({ onChange, onRemove, imageUrl, error }, ref) => {
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0] || null;
-      onChange(file);
-    };
-
     return (
       <div className="space-y-2">
         {imageUrl ? (
@@ -43,7 +38,7 @@ const FileInput = React.forwardRef<HTMLInputElement, FileInputProps>(
               ref={ref}
               type="file"
               accept="image/*"
-              onChange={handleFileChange}
+              onChange={onChange}
               className="hidden"
               id="file-upload"
             />
