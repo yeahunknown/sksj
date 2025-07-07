@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Rocket, Coins, BarChart3, Zap, Flame, Sparkles, TrendingUp, Layers } from "lucide-react";
+import { Rocket, Coins, BarChart3, Zap, Flame, Sparkles, TrendingUp, Shield, Gauge, Target } from "lucide-react";
 
 export function FeatureGrid() {
   const container = {
@@ -47,7 +47,7 @@ const features = [
   {
     title: "Lightning Fast Deploy",
     description: "Create and deploy your SPL token to Solana mainnet in seconds. Zero coding, maximum speed.",
-    icon: <Zap className="h-6 w-6 text-blue-400" />,
+    icon: <Gauge className="h-6 w-6 text-blue-400" />,
   },
   {
     title: "Instant Liquidity",
@@ -67,7 +67,7 @@ const features = [
   {
     title: "Moon Machine",
     description: "Built-in tools to help your token gain traction and climb the trending charts across platforms.",
-    icon: <TrendingUp className="h-6 w-6 text-green-400" />,
+    icon: <Target className="h-6 w-6 text-green-400" />,
   },
   {
     title: "Fire Features",
@@ -82,6 +82,6 @@ const features = [
   {
     title: "Solana Native",
     description: "Purpose-built for Solana's ecosystem. Fast, cheap, and perfectly optimized for maximum performance.",
-    icon: <Layers className="h-6 w-6 text-blue-400" />,
+    icon: <Shield className="h-6 w-6 text-blue-400" />,
   },
 ];

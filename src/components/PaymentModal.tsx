@@ -165,13 +165,15 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
       onClick={handleBackdropClick}
     >
       <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-modal-scale border border-gray-700">
-        {/* PGPAY Header */}
+        {/* SecPay Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-gray-900 font-bold text-sm">PG</span>
+              <svg className="w-5 h-5 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
             </div>
-            <span className="text-white font-bold text-xl">PGPAY</span>
+            <span className="text-white font-bold text-xl">SecPay</span>
           </div>
           <Button variant="outline" size="sm" className="text-white border-gray-600 bg-transparent hover:bg-gray-800">
             Sign up
