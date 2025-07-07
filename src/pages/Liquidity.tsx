@@ -127,7 +127,7 @@ const Liquidity = () => {
         <div className="max-w-2xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Add Liquidity</h1>
-            <p className="text-xl text-gray-300">Provide liquidity for your token on DEX</p>
+            <p className="text-xl text-muted-foreground">Provide liquidity for your token on DEX</p>
           </div>
 
           <div className="glass rounded-2xl p-8">
@@ -139,12 +139,12 @@ const Liquidity = () => {
                   value={formData.tokenAddress}
                   onChange={(e) => updateFormData('tokenAddress', e.target.value)}
                   placeholder="Enter 44-character token address ending with 'omni'"
-                  className={`mt-2 glass border-white/20 ${addressError ? 'border-red-500' : ''}`}
+                  className={`mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary ${addressError ? 'border-red-500' : ''}`}
                 />
                 {addressError && (
                   <p className="text-red-400 text-sm mt-1">{addressError}</p>
                 )}
-                <p className="text-gray-400 text-xs mt-1">Must be exactly 44 characters and end with "omni"</p>
+                <p className="text-muted-foreground text-xs mt-1">Must be exactly 44 characters and end with "omni"</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -155,7 +155,7 @@ const Liquidity = () => {
                     value={formData.tokenName}
                     onChange={(e) => updateFormData('tokenName', e.target.value)}
                     placeholder="My Token"
-                    className="mt-2 glass border-white/20"
+                    className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                   />
                 </div>
                 <div>
@@ -165,7 +165,7 @@ const Liquidity = () => {
                     value={formData.tokenSymbol}
                     onChange={(e) => updateFormData('tokenSymbol', e.target.value.toUpperCase())}
                     placeholder="MTK"
-                    className="mt-2 glass border-white/20"
+                    className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                     maxLength={8}
                   />
                 </div>
@@ -179,7 +179,7 @@ const Liquidity = () => {
                   value={formData.addSupply}
                   onChange={(e) => updateFormData('addSupply', e.target.value)}
                   placeholder="1000000"
-                  className="mt-2 glass border-white/20"
+                  className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                 />
               </div>
 
@@ -194,12 +194,12 @@ const Liquidity = () => {
                   min="0.3"
                   max="100"
                   step="0.1"
-                  className={`mt-2 glass border-white/20 ${lpSizeError ? 'border-red-500' : ''}`}
+                  className={`mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary ${lpSizeError ? 'border-red-500' : ''}`}
                 />
                 {lpSizeError && (
                   <p className="text-red-400 text-sm mt-1">{lpSizeError}</p>
                 )}
-                <p className="text-gray-400 text-xs mt-1">Minimum: 0.3 SOL | Maximum: 100 SOL</p>
+                <p className="text-muted-foreground text-xs mt-1">Minimum: 0.3 SOL | Maximum: 100 SOL</p>
               </div>
 
               <div className="glass rounded-xl p-4">
@@ -208,13 +208,13 @@ const Liquidity = () => {
                     id="boostVisibility"
                     checked={formData.boostVisibility}
                     onCheckedChange={(checked) => updateFormData('boostVisibility', !!checked)}
-                    className="border-white/20"
+                    className="border-border"
                   />
                   <div className="flex-1">
                     <Label htmlFor="boostVisibility" className="font-medium">
                       Boost Token Visibility
                     </Label>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       Increase your token's visibility on DEX platforms
                     </p>
                   </div>
@@ -240,7 +240,7 @@ const Liquidity = () => {
                         <span>+0.15 SOL</span>
                       </div>
                     )}
-                    <div className="border-t border-white/20 pt-2 flex justify-between font-bold text-lg">
+                    <div className="border-t border-border pt-2 flex justify-between font-bold text-lg">
                       <span>Total</span>
                       <span className="text-blue-500">{totalCost.toFixed(2)} SOL</span>
                     </div>
@@ -251,7 +251,7 @@ const Liquidity = () => {
               <Button
                 onClick={handleAddLiquidity}
                 disabled={!isFormValid}
-                className="w-full bg-blue-500 hover:bg-blue-600 py-3 text-lg"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 text-lg"
               >
                 Add Liquidity
               </Button>
