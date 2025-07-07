@@ -20,7 +20,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
             <img 
-              src="https://i.ibb.co/8nVTNNzh/Omnipad.png" 
+              src="/logo.png" 
               alt="Omnipad" 
               className="w-8 h-8"
             />
