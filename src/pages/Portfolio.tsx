@@ -22,10 +22,12 @@ interface Token {
   hasLiquidity: boolean;
   isDead: boolean;
   liquidityAdded?: number;
+  isOverridden?: boolean;
 }
 
 // Session storage for non-persistent tokens
 let sessionTokens: Token[] = [];
+let updateIntervals: { [key: string]: NodeJS.Timeout } = {};
 
 const Portfolio = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -35,42 +37,101 @@ const Portfolio = () => {
   // Load tokens from session memory only (no localStorage)
   useEffect(() => {
     setTokens(sessionTokens);
+
+    // Start update intervals for live tokens
+    sessionTokens.forEach(token => {
+      if (token.hasLiquidity && !token.isDead && !token.isOverridden) {
+        startTokenUpdates(token.id);
+      }
+    });
+
+    return () => {
+      // Cleanup intervals
+      Object.values(updateIntervals).forEach(clearInterval);
+    };
   }, []);
 
-  // Handle Shift + 6 key combination for demo values
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.shiftKey && event.key === '^') {
-        if (tokens.length > 0) {
-          const updatedTokens = tokens.map(token => ({
-            ...token,
-            liquidity: 59.67,
-            marketCap: 18240,
-            volume24h: 7760,
-            price: 0.0000182,
-            priceChange24h: 12.5
-          }));
-          setTokens(updatedTokens);
-          sessionTokens = updatedTokens;
-        }
-      }
+  // Calculate realistic tokenomics based on liquidity
+  const calculateTokenomics = (liquidity: number) => {
+    // Base calculations - realistic for small cap tokens
+    const basePrice = (liquidity * 0.000001) + Math.random() * 0.000005;
+    const volume24h = liquidity * (8 + Math.random() * 12); // 8-20x liquidity
+    const marketCap = basePrice * 1000000000; // Assuming 1B supply
+    
+    return {
+      price: basePrice,
+      volume24h: Math.round(volume24h),
+      marketCap: Math.round(marketCap)
     };
+  };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [tokens]);
-
-  const generateZeroChartData = () => {
+  // Generate realistic active chart data
+  const generateActiveChartData = (basePrice: number, volatility: number = 0.3) => {
     const data = [];
+    let currentPrice = basePrice;
+    
     for (let i = 0; i < 24; i++) {
+      // Add realistic volatility with trend
+      const trendFactor = Math.sin(i * 0.3) * 0.1; // Subtle trend
+      const volatilityFactor = (Math.random() - 0.5) * volatility;
+      const pumpChance = Math.random();
+      
+      // Occasional small pumps and dips
+      let pumpFactor = 0;
+      if (pumpChance < 0.05) { // 5% chance of pump
+        pumpFactor = 0.15 + Math.random() * 0.25;
+      } else if (pumpChance < 0.1) { // 5% chance of dip
+        pumpFactor = -(0.1 + Math.random() * 0.15);
+      }
+      
+      currentPrice = currentPrice * (1 + trendFactor + volatilityFactor + pumpFactor);
+      
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
-        price: 0
+        price: Math.max(currentPrice, basePrice * 0.1) // Prevent going too low
       });
     }
+    
     return data;
   };
 
+  // Generate override chart data (smooth ramp + spike)
+  const generateOverrideChartData = () => {
+    const data = [];
+    const basePrice = 0.00000820;
+    const targetPrice = 0.00001820;
+    
+    // Smooth ramp-up for first 18 hours
+    for (let i = 0; i < 18; i++) {
+      const progress = i / 17;
+      const price = basePrice + (progress * (targetPrice - basePrice) * 0.7);
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: price
+      });
+    }
+    
+    // Big green spike
+    for (let i = 18; i < 21; i++) {
+      const spikeMultiplier = 1 + ((i - 17) * 0.8);
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: targetPrice * spikeMultiplier
+      });
+    }
+    
+    // Level out at target price
+    for (let i = 21; i < 24; i++) {
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: targetPrice
+      });
+    }
+    
+    return data;
+  };
+
+  // Generate crash chart data
   const generateCrashChartData = (basePrice: number) => {
     const data = [];
     for (let i = 0; i < 20; i++) {
@@ -90,12 +151,97 @@ const Portfolio = () => {
     return data;
   };
 
+  // Start live updates for a token
+  const startTokenUpdates = (tokenId: string) => {
+    if (updateIntervals[tokenId]) return;
+
+    updateIntervals[tokenId] = setInterval(() => {
+      setTokens(prevTokens => {
+        return prevTokens.map(token => {
+          if (token.id === tokenId && token.hasLiquidity && !token.isDead && !token.isOverridden) {
+            const newTokenomics = calculateTokenomics(token.liquidity);
+            const priceChange = ((newTokenomics.price - token.price) / token.price) * 100;
+            
+            return {
+              ...token,
+              ...newTokenomics,
+              priceChange24h: priceChange,
+              chartData: generateActiveChartData(newTokenomics.price)
+            };
+          }
+          return token;
+        });
+      });
+      
+      // Update session tokens
+      sessionTokens = sessionTokens.map(token => {
+        if (token.id === tokenId && token.hasLiquidity && !token.isDead && !token.isOverridden) {
+          const newTokenomics = calculateTokenomics(token.liquidity);
+          const priceChange = ((newTokenomics.price - token.price) / token.price) * 100;
+          
+          return {
+            ...token,
+            ...newTokenomics,
+            priceChange24h: priceChange,
+            chartData: generateActiveChartData(newTokenomics.price)
+          };
+        }
+        return token;
+      });
+    }, 3000); // Update every 3 seconds
+  };
+
+  // Stop updates for a token
+  const stopTokenUpdates = (tokenId: string) => {
+    if (updateIntervals[tokenId]) {
+      clearInterval(updateIntervals[tokenId]);
+      delete updateIntervals[tokenId];
+    }
+  };
+
+  // Handle Shift + 6 key combination for developer override
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.shiftKey && event.key === '^') {
+        if (tokens.length > 0) {
+          // Stop all updates
+          Object.keys(updateIntervals).forEach(stopTokenUpdates);
+          
+          const updatedTokens = tokens.map(token => ({
+            ...token,
+            liquidity: 59.67,
+            price: 0.00001820,
+            volume24h: 7760,
+            marketCap: 18240,
+            priceChange24h: 12.5,
+            chartData: generateOverrideChartData(),
+            isOverridden: true
+          }));
+          
+          setTokens(updatedTokens);
+          sessionTokens = updatedTokens;
+          
+          toast({
+            title: "Developer Override Activated",
+            description: "All tokens locked to demo values",
+          });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [tokens]);
+
   const handleWithdrawLiquidity = (token: Token) => {
     setSelectedToken(token);
     setShowWithdrawModal(true);
   };
 
   const handleWithdrawSuccess = (tokenId: string) => {
+    // Stop updates for this token
+    stopTokenUpdates(tokenId);
+    
     const updatedTokens = tokens.map(token => {
       if (token.id === tokenId) {
         return {
@@ -156,7 +302,7 @@ const Portfolio = () => {
 
           <div className="grid gap-6">
             {tokens.map((token) => (
-              <div key={token.id} className={`glass rounded-2xl p-6 ${token.isDead ? 'opacity-60' : ''}`}>
+              <div key={token.id} className={`glass rounded-2xl p-6 transition-all duration-300 ${token.isDead ? 'opacity-60' : ''} ${token.isOverridden ? 'ring-2 ring-yellow-500/30' : ''}`}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Token Info */}
                   <div className="flex items-center space-x-4">
@@ -196,6 +342,9 @@ const Portfolio = () => {
                       <p className={`text-sm mt-1 ${token.liquidity > 0 ? 'text-blue-400' : 'text-gray-500'}`}>
                         {token.liquidity > 0 ? `${token.liquidity.toFixed(2)} SOL` : 'No liquidity'}
                       </p>
+                      {token.isOverridden && (
+                        <span className="text-xs text-yellow-400 font-semibold">DEMO MODE</span>
+                      )}
                     </div>
                   </div>
 
@@ -211,6 +360,7 @@ const Portfolio = () => {
                           stroke={token.isDead ? "#EF4444" : (token.priceChange24h >= 0 ? "#10B981" : "#EF4444")}
                           strokeWidth={2}
                           dot={false}
+                          animationDuration={token.isDead ? 1000 : 300}
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -289,7 +439,7 @@ const Portfolio = () => {
 };
 
 // Export function to add tokens from other components
-export const addTokenToSession = (token: Omit<Token, 'chartData'>) => {
+export const addTokenToSession = (token: Omit<Token, 'chartData' | 'liquidity' | 'price' | 'priceChange24h' | 'volume24h' | 'marketCap' | 'hasLiquidity' | 'isDead'>) => {
   const newToken: Token = {
     ...token,
     liquidity: 0,
@@ -312,10 +462,22 @@ export const addTokenToSession = (token: Omit<Token, 'chartData'>) => {
 export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number) => {
   sessionTokens = sessionTokens.map(token => {
     if (token.name === tokenName) {
+      const tokenomics = {
+        liquidity: liquidityAmount,
+        price: (liquidityAmount * 0.000001) + Math.random() * 0.000005,
+        volume24h: Math.round(liquidityAmount * (8 + Math.random() * 12)),
+        marketCap: Math.round(((liquidityAmount * 0.000001) + Math.random() * 0.000005) * 1000000000)
+      };
+      
       return {
         ...token,
-        liquidity: liquidityAmount,
+        ...tokenomics,
         hasLiquidity: true,
+        priceChange24h: 0,
+        chartData: Array.from({ length: 24 }, (_, i) => ({
+          time: `${i.toString().padStart(2, '0')}:00`,
+          price: tokenomics.price * (0.8 + Math.random() * 0.4)
+        })),
         liquidityAdded: Date.now()
       };
     }
