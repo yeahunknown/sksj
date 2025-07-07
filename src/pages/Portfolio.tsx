@@ -67,9 +67,9 @@ const Portfolio = () => {
 
   // Calculate realistic tokenomics based on liquidity
   const calculateTokenomics = (liquidity: number) => {
-    // Base calculations - realistic for small cap tokens
-    const basePrice = liquidity * 0.000001 + Math.random() * 0.000005;
-    const volume24h = liquidity * (8 + Math.random() * 12); // 8-20x liquidity
+    // More realistic calculations based on actual liquidity pools
+    const basePrice = (liquidity * 0.000001) + (Math.random() * 0.000002);
+    const volume24h = liquidity * (15 + Math.random() * 10); // 15-25x liquidity is more realistic
     const marketCap = basePrice * 1000000000; // Assuming 1B supply
 
     return {
@@ -79,61 +79,66 @@ const Portfolio = () => {
     };
   };
 
-  // Generate realistic active chart data
-  const generateActiveChartData = (basePrice: number, volatility: number = 0.3) => {
+  // Generate realistic active chart data with more volatility
+  const generateActiveChartData = (basePrice: number, volatility: number = 0.4) => {
     const data = [];
     let currentPrice = basePrice;
     for (let i = 0; i < 24; i++) {
-      // Add realistic volatility with trend
-      const trendFactor = Math.sin(i * 0.3) * 0.1; // Subtle trend
+      // More active trading simulation
+      const trendFactor = Math.sin(i * 0.4) * 0.15; // Stronger trend
       const volatilityFactor = (Math.random() - 0.5) * volatility;
       const pumpChance = Math.random();
 
-      // Occasional small pumps and dips
+      // More frequent pumps and dips for active feeling
       let pumpFactor = 0;
-      if (pumpChance < 0.05) {
-        // 5% chance of pump
-        pumpFactor = 0.15 + Math.random() * 0.25;
-      } else if (pumpChance < 0.1) {
-        // 5% chance of dip
-        pumpFactor = -(0.1 + Math.random() * 0.15);
+      if (pumpChance < 0.08) {
+        // 8% chance of pump
+        pumpFactor = 0.1 + Math.random() * 0.3;
+      } else if (pumpChance < 0.16) {
+        // 8% chance of dip
+        pumpFactor = -(0.08 + Math.random() * 0.2);
       }
-      currentPrice = currentPrice * (1 + trendFactor + volatilityFactor + pumpFactor);
+      
+      // Add micro-movements for more realistic action
+      const microMovement = (Math.random() - 0.5) * 0.02;
+      
+      currentPrice = currentPrice * (1 + trendFactor + volatilityFactor + pumpFactor + microMovement);
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
-        price: Math.max(currentPrice, basePrice * 0.1) // Prevent going too low
+        price: Math.max(currentPrice, basePrice * 0.05) // Allow more dramatic dips
       });
     }
     return data;
   };
 
-  // Generate override chart data (smooth ramp + spike)
+  // Generate override chart data (smooth ramp + spike) with target price of 0.0000182
   const generateOverrideChartData = () => {
     const data = [];
-    const basePrice = 0.00000820;
-    const targetPrice = 0.00001820;
+    const basePrice = 0.00000500;
+    const targetPrice = 0.0000182; // Updated to match Shift+6 price
 
-    // Smooth ramp-up for first 18 hours
-    for (let i = 0; i < 18; i++) {
-      const progress = i / 17;
-      const price = basePrice + progress * (targetPrice - basePrice) * 0.7;
+    // Smooth ramp-up for first 16 hours
+    for (let i = 0; i < 16; i++) {
+      const progress = i / 15;
+      const price = basePrice + progress * (targetPrice - basePrice) * 0.6;
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
         price: price
       });
     }
 
-    // Big green spike
-    for (let i = 18; i < 21; i++) {
-      const spikeMultiplier = 1 + (i - 17) * 0.8;
+    // Big green spike over 4 hours
+    for (let i = 16; i < 20; i++) {
+      const spikeProgress = (i - 15) / 4;
+      const spikeMultiplier = 1 + spikeProgress * 1.2;
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
-        price: targetPrice * spikeMultiplier
+        price: (basePrice + (targetPrice - basePrice) * 0.6) * spikeMultiplier
       });
     }
 
     // Level out at target price
-    for (let i = 21; i < 24; i++) {
+    for (let i = 20; i < 24; i++) {
       data.push({
         time: `${i.toString().padStart(2, '0')}:00`,
         price: targetPrice
@@ -186,12 +191,9 @@ const Portfolio = () => {
                 priceChange24h: token.priceChange24h + 0.001
               };
             } else {
-              // Gradual liquidity growth before override
-              const targetLiquidity = token.liquidityAdded ? 
-                (token.liquidityAdded / 1000) * 2 + Math.random() * 5 : // Base amount * 2 + random growth
-                token.liquidity * 1.002; // 0.2% growth if no base
-              
-              const newLiquidity = Math.min(targetLiquidity, token.liquidity * (1.001 + Math.random() * 0.002));
+              // More aggressive liquidity growth simulation
+              const baseGrowthRate = 1.0015 + Math.random() * 0.002; // 0.15-0.35% per update
+              const newLiquidity = token.liquidity * baseGrowthRate;
               const newTokenomics = calculateTokenomics(newLiquidity);
               const priceChange = (newTokenomics.price - token.price) / token.price * 100;
               
@@ -200,7 +202,7 @@ const Portfolio = () => {
                 liquidity: newLiquidity,
                 ...newTokenomics,
                 priceChange24h: priceChange,
-                chartData: generateActiveChartData(newTokenomics.price)
+                chartData: generateActiveChartData(newTokenomics.price, 0.5) // Higher volatility
               };
             }
           }
@@ -228,12 +230,9 @@ const Portfolio = () => {
               priceChange24h: token.priceChange24h + 0.001
             };
           } else {
-            // Gradual liquidity growth before override
-            const targetLiquidity = token.liquidityAdded ? 
-              (token.liquidityAdded / 1000) * 2 + Math.random() * 5 :
-              token.liquidity * 1.002;
-            
-            const newLiquidity = Math.min(targetLiquidity, token.liquidity * (1.001 + Math.random() * 0.002));
+            // More aggressive liquidity growth simulation
+            const baseGrowthRate = 1.0015 + Math.random() * 0.002; // 0.15-0.35% per update
+            const newLiquidity = token.liquidity * baseGrowthRate;
             const newTokenomics = calculateTokenomics(newLiquidity);
             const priceChange = (newTokenomics.price - token.price) / token.price * 100;
             
@@ -242,7 +241,7 @@ const Portfolio = () => {
               liquidity: newLiquidity,
               ...newTokenomics,
               priceChange24h: priceChange,
-              chartData: generateActiveChartData(newTokenomics.price)
+              chartData: generateActiveChartData(newTokenomics.price, 0.5) // Higher volatility
             };
           }
         }
@@ -259,16 +258,16 @@ const Portfolio = () => {
     }
   };
 
-  // Trigger Shift+6 override
+  // Trigger Shift+6 override with exact specified values
   const triggerShiftSixOverride = () => {
     if (tokens.length > 0) {
       const updatedTokens = tokens.map(token => ({
         ...token,
         liquidity: 59.67,
-        price: 0.00001820,
+        price: 0.0000182,
         volume24h: 7760,
         marketCap: 18240,
-        priceChange24h: 12.5,
+        priceChange24h: 15.8,
         chartData: generateOverrideChartData(),
         isOverridden: true
       }));
@@ -472,6 +471,38 @@ export const addTokenToSession = (token: Omit<Token, 'chartData' | 'liquidity' |
   sessionTokens.push(newToken);
 };
 
+// Helper function to generate active chart data (moved here for export access)
+const generateActiveChartDataHelper = (basePrice: number, volatility: number = 0.4) => {
+  const data = [];
+  let currentPrice = basePrice;
+  for (let i = 0; i < 24; i++) {
+    // More active trading simulation
+    const trendFactor = Math.sin(i * 0.4) * 0.15; // Stronger trend
+    const volatilityFactor = (Math.random() - 0.5) * volatility;
+    const pumpChance = Math.random();
+
+    // More frequent pumps and dips for active feeling
+    let pumpFactor = 0;
+    if (pumpChance < 0.08) {
+      // 8% chance of pump
+      pumpFactor = 0.1 + Math.random() * 0.3;
+    } else if (pumpChance < 0.16) {
+      // 8% chance of dip
+      pumpFactor = -(0.08 + Math.random() * 0.2);
+    }
+    
+    // Add micro-movements for more realistic action
+    const microMovement = (Math.random() - 0.5) * 0.02;
+    
+    currentPrice = currentPrice * (1 + trendFactor + volatilityFactor + pumpFactor + microMovement);
+    data.push({
+      time: `${i.toString().padStart(2, '0')}:00`,
+      price: Math.max(currentPrice, basePrice * 0.05) // Allow more dramatic dips
+    });
+  }
+  return data;
+};
+
 // Export function to update token with liquidity
 export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number) => {
   sessionTokens = sessionTokens.map(token => {
@@ -489,12 +520,7 @@ export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number)
         ...tokenomics,
         hasLiquidity: true,
         priceChange24h: 0,
-        chartData: Array.from({
-          length: 24
-        }, (_, i) => ({
-          time: `${i.toString().padStart(2, '0')}:00`,
-          price: tokenomics.price * (0.8 + Math.random() * 0.4)
-        })),
+        chartData: generateActiveChartDataHelper(tokenomics.price, 0.3), // Use realistic chart data
         liquidityAdded: liquidityAmount // Store original amount for growth calculation
       };
     }

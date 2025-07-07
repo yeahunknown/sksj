@@ -43,8 +43,8 @@ const Liquidity = () => {
     // Validate token address
     if (field === 'tokenAddress') {
       const address = value as string;
-      if (address && (address.length !== 44 || !address.endsWith('omni'))) {
-        setAddressError('Token address must be exactly 44 characters and end with "omni"');
+      if (address && (address.length !== 44 || !address.endsWith('.omni'))) {
+        setAddressError('Token address must be exactly 44 characters and end with ".omni"');
       } else {
         setAddressError('');
       }
@@ -138,13 +138,13 @@ const Liquidity = () => {
                   id="tokenAddress"
                   value={formData.tokenAddress}
                   onChange={(e) => updateFormData('tokenAddress', e.target.value)}
-                  placeholder="Enter 44-character token address ending with 'omni'"
+                  placeholder="Enter 44-character token address ending with '.omni'"
                   className={`mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary ${addressError ? 'border-red-500' : ''}`}
                 />
                 {addressError && (
                   <p className="text-red-400 text-sm mt-1">{addressError}</p>
                 )}
-                <p className="text-muted-foreground text-xs mt-1">Must be exactly 44 characters and end with "omni"</p>
+                <p className="text-muted-foreground text-xs mt-1">Must be exactly 44 characters and end with ".omni"</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

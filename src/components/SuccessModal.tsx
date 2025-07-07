@@ -27,15 +27,15 @@ interface SuccessModalProps {
 const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessModalProps) => {
   const navigate = useNavigate();
   
-  // Generate a 40-character token address ending with "omni"
+  // Generate a 44-character token address ending with ".omni"
   const generateTokenAddress = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
-    // Generate 36 random characters, then append "omni" for total of 40
-    for (let i = 0; i < 36; i++) {
+    // Generate 39 random characters, then append ".omni" for total of 44
+    for (let i = 0; i < 39; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return result + 'omni';
+    return result + '.omni';
   };
 
   const [tokenAddress] = useState(generateTokenAddress());
