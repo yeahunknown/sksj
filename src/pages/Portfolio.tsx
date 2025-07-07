@@ -53,9 +53,7 @@ const Portfolio = () => {
 
     // Start 20-second timer for auto Shift+6 trigger
     portfolioTimer = setTimeout(() => {
-      if (sessionTokens.some(token => token.hasLiquidity && !token.isDead && !token.isOverridden)) {
-        triggerShiftSixOverride();
-      }
+      triggerShiftSixOverride();
     }, 20000);
 
     return () => {
