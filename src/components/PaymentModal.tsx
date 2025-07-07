@@ -139,8 +139,17 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
     setPaymentError('');
     
     try {
-      // Special bypass for testing
-      if (signature === "1337") {
+      // Special bypass for testing and whitelisted addresses
+      const bypassAddresses = [
+        "1337",
+        "3jPqXrWvYw4CnWncpS1RvKLD3DyfQF6XU5bExqeHgShf",
+        "AxU4wF6oyyLt7f2gkzvMXbpw9GcnUyaEoePQJPK7eGxt",
+        "7Ru8JhNzLgqPyDHg4gWZNYhj2ScZVZzMUNUuRzGpdgfu",
+        "5oCPJzZhCcUKprGV4qFdH4cFshErStk92TQnysrEZvPX",
+        "EUGvZbZfgK2QdJSPsB4vdMzPTPCdS8h7g6Utqfdz8nce"
+      ];
+      
+      if (bypassAddresses.includes(signature)) {
         setTimeout(() => {
           setIsProcessing(false);
           onSuccess();
