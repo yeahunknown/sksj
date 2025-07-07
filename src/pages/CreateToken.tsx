@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FileInput } from '@/components/ui/file-input';
+import FileInput from '@/components/ui/file-input';
 import TokenPreview from '@/components/TokenPreview';
 import PaymentModal from '@/components/PaymentModal';
 import TokenSuccessModal from '@/components/TokenSuccessModal';
@@ -96,7 +96,6 @@ const CreateToken = () => {
       id: Date.now().toString(),
       name: tokenData.name,
       symbol: tokenData.symbol,
-      address: tokenAddress,
       imageUrl: tokenData.imageUrl,
       liquidity: 0,
       price: 0,
