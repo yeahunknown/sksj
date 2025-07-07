@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Rocket, Coins, BarChart3 } from "lucide-react";
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 interface AnimatedChartProps {
   className?: string;
@@ -65,7 +66,7 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
                       animate={{ width: "100%" }}
                       transition={{ duration: 0.5, delay: 0.1 }}
                     >
-                      <span className="text-sm font-medium text-gray-300">DRINKS</span>
+                      <span className="text-sm font-medium text-gray-300">MOON ROCKET</span>
                     </motion.div>
                     <motion.div
                       className="w-full h-12 rounded-lg bg-gray-800 border border-blue-500/10 flex items-center px-4"
@@ -73,7 +74,7 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
                       animate={{ width: "100%" }}
                       transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                      <span className="text-sm font-medium text-gray-300">1,000,000,000</span>
+                      <span className="text-sm font-medium text-gray-300">100,000,000</span>
                     </motion.div>
                     <motion.div
                       className="w-full h-12 rounded-lg bg-gray-800 border border-blue-500/10 flex items-center px-4"
@@ -81,7 +82,7 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
                       animate={{ width: "100%" }}
                       transition={{ duration: 0.5, delay: 0.3 }}
                     >
-                      <span className="text-sm font-medium text-gray-300">$DRNKS</span>
+                      <span className="text-sm font-medium text-gray-300">$MOON</span>
                     </motion.div>
                   </>
                 )}
@@ -131,7 +132,7 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
                         transition={{ duration: 0.5 }}
                         className="flex items-center gap-2"
                       >
-                        <span className="text-lg font-bold text-white">$DRNKS</span>
+                        <span className="text-lg font-bold text-white">$MOON</span>
                         <span className="text-green-400 font-bold">+1337%</span>
                       </motion.div>
                       <motion.div
@@ -204,16 +205,20 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
           >
-            <Button 
-              className={`w-full font-semibold py-3 rounded-xl transition-all duration-300 ${
-                step === 2 
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                  : 'bg-gray-700 text-gray-300 cursor-not-allowed'
-              }`}
-              disabled={step !== 2}
-            >
-              {step === 2 ? 'gm to the moon' : step === 1 ? 'Adding liquidity...' : 'Creating token...'}
-            </Button>
+            {step === 2 ? (
+              <Link to="/create" className="block">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all duration-300">
+                  Create Token
+                </Button>
+              </Link>
+            ) : (
+              <Button 
+                className="w-full bg-gray-700 text-gray-300 cursor-not-allowed font-semibold py-3 rounded-xl"
+                disabled
+              >
+                {step === 1 ? 'Adding liquidity...' : 'Creating token...'}
+              </Button>
+            )}
           </motion.div>
         </motion.div>
       </div>
