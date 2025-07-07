@@ -24,7 +24,7 @@ const Security = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibred mb-4 text-white">2. No Real Wallet Integration</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">2. No Real Wallet Integration</h2>
                 <p className="mb-4">
                   Unlike real DeFi platforms, Omnipad does NOT:
                 </p>

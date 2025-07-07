@@ -28,7 +28,8 @@ const TokenPreview = ({ tokenData }: TokenPreviewProps) => {
               <img 
                 src={tokenData.imageUrl} 
                 alt={tokenData.name || 'Token'} 
-                className="w-full h-full object-cover rounded-full"
+                className="w-full h-full object-cover rounded-full pointer-events-auto"
+                style={{ pointerEvents: 'auto' }}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">

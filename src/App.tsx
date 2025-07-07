@@ -9,6 +9,9 @@ import Index from "./pages/Index";
 import CreateToken from "./pages/CreateToken";
 import Liquidity from "./pages/Liquidity";
 import Portfolio from "./pages/Portfolio";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Security from "./pages/Security";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +28,9 @@ const App = () => (
             <Route path="/create" element={<CreateToken />} />
             <Route path="/liquidity" element={<Liquidity />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/security" element={<Security />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

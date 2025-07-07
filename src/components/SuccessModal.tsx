@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Check, Copy } from 'lucide-react';
+import { Check } from 'lucide-react';
+import CopyButton from '@/components/CopyButton';
 
 interface TokenData {
   name: string;
@@ -24,7 +25,6 @@ interface SuccessModalProps {
 }
 
 const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessModalProps) => {
-  const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   
   // Generate a 40-character token address ending with "omni"
@@ -42,15 +42,6 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
 
   if (!isOpen) return null;
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(tokenAddress);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy to clipboard');
-    }
-  };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -76,7 +67,7 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
       className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-modal-in"
       onClick={handleBackdropClick}
     >
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-modal-scale">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-modal-scale transition-all duration-300">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
             <Check className="w-10 h-10 text-white" />
@@ -94,14 +85,13 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
               <code className="flex-1 bg-gray-700 px-3 py-2 rounded-lg text-sm font-mono text-green-400 border border-gray-600 min-w-0 overflow-hidden">
                 <div className="truncate">{tokenAddress}</div>
               </code>
-              <Button
-                onClick={copyToClipboard}
+              <CopyButton
+                text={tokenAddress}
                 variant="outline"
                 size="sm"
                 className="bg-gray-700 border-gray-600 hover:bg-gray-600 shrink-0 p-2"
-              >
-                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-              </Button>
+                toastMessage="Token address copied!"
+              />
             </div>
           </div>
 

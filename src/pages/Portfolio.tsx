@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Search, TrendingUp, TrendingDown, Copy } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown } from 'lucide-react';
+import CopyButton from '@/components/CopyButton';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import WithdrawLiquidityModal from '@/components/WithdrawLiquidityModal';
 import { toast } from '@/hooks/use-toast';
@@ -196,7 +197,7 @@ const Portfolio = () => {
     }
   };
 
-  // Handle Shift + 6 key combination for developer override (NO NOTIFICATIONS)
+  // Handle Shift + 6 key combination for developer override
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.shiftKey && event.key === '^') {
@@ -215,7 +216,11 @@ const Portfolio = () => {
           }));
           setTokens(updatedTokens);
           sessionTokens = updatedTokens;
-          // NO TOAST OR NOTIFICATION
+          
+          // Show toast notification
+          toast({
+            title: "Token reached high liquidity. Consider withdrawing."
+          });
         }
       }
     };
@@ -251,12 +256,6 @@ const Portfolio = () => {
     sessionTokens = updatedTokens;
   };
 
-  const copyAddress = (address: string) => {
-    navigator.clipboard.writeText(address);
-    toast({
-      title: "Address copied to clipboard"
-    });
-  };
 
   // Show empty state if no tokens
   if (tokens.length === 0) {
@@ -286,12 +285,12 @@ const Portfolio = () => {
           </div>
 
           <div className="grid gap-6">
-            {tokens.map(token => <div key={token.id} className={`glass rounded-2xl p-6 transition-all duration-300 ${token.isDead ? 'opacity-60' : ''} ${token.isOverridden ? 'ring-2 ring-yellow-500/30' : ''}`}>
+            {tokens.map(token => <div key={token.id} className={`glass rounded-2xl p-6 transition-all duration-300 ${token.isDead ? 'opacity-60' : ''} ${token.isOverridden ? 'ring-2 ring-green-500/50 high-activity-pulse' : ''}`}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Token Info */}
                   <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden">
-                      {token.imageUrl ? <img src={token.imageUrl} alt={token.name} className="w-full h-full object-cover rounded-full" /> : <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xl font-bold">
+                      {token.imageUrl ? <img src={token.imageUrl} alt={token.name} className="w-full h-full object-cover rounded-full pointer-events-auto" style={{ pointerEvents: 'auto' }} /> : <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xl font-bold">
                           {token.symbol[0]}
                         </div>}
                     </div>
@@ -303,9 +302,12 @@ const Portfolio = () => {
                             <span className="text-xs text-gray-500 font-mono">
                               {token.address.slice(0, 8)}...{token.address.slice(-8)}
                             </span>
-                            <button onClick={() => copyAddress(token.address)} className="text-gray-400 hover:text-white transition-colors">
-                              <Copy className="w-3 h-3" />
-                            </button>
+                            <CopyButton 
+                              text={token.address} 
+                              size="icon"
+                              className="h-6 w-6 p-1 bg-gray-700 border-gray-600 hover:bg-gray-600"
+                              toastMessage="Address copied to clipboard"
+                            />
                           </> : <span className="text-xs text-gray-500">No address</span>}
                       </div>
                       <p className={`text-sm mt-1 ${token.liquidity > 0 ? 'text-blue-400' : 'text-gray-500'}`}>

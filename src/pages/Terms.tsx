@@ -1,4 +1,3 @@
-
 import Layout from '@/components/Layout';
 
 const Terms = () => {
@@ -13,131 +12,157 @@ const Terms = () => {
               <section>
                 <h2 className="text-2xl font-semibold mb-4 text-white">1. Acceptance of Terms</h2>
                 <p className="mb-4">
-                  By accessing and using Omnipad ("the Platform"), you accept and agree to be bound by these Terms of Service. 
-                  If you do not agree to these terms, you must not use this platform.
+                  By accessing or using Omnipad ("the Platform"), you agree to be bound by these Terms of Service 
+                  ("Terms"). If you disagree with any part of these terms, then you may not access the Platform.
                 </p>
-                <p>
-                  These terms constitute a legally binding agreement between you and the operators of Omnipad. 
-                  We reserve the right to modify these terms at any time without prior notice.
+                <p className="mb-4">
+                  <strong>CRITICAL NOTICE:</strong> Omnipad is a demonstration platform only and does not provide 
+                  actual token launching services. No real blockchain transactions occur through this platform.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">2. Platform Disclaimer</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">2. Platform Purpose and Limitations</h2>
                 <p className="mb-4">
-                  <strong>IMPORTANT:</strong> Omnipad does NOT provide token launching services. This platform is a demonstration 
-                  interface only. No actual tokens are created, deployed, or launched through this platform.
-                </p>
-                <p className="mb-4">
-                  Any interactions with this platform are purely educational and demonstrative. No real blockchain transactions 
-                  occur through the use of this platform.
-                </p>
-                <p>
-                  Users must understand that this platform is for demonstration purposes only and does not constitute 
-                  any form of financial service or token deployment mechanism.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">3. User Responsibility</h2>
-                <p className="mb-4">
-                  You are 100% responsible for all your actions while using this platform. This includes but is not limited to:
+                  Omnipad serves as a demonstration interface to showcase potential token creation workflows. 
+                  The Platform does NOT:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-2 mb-4">
-                  <li>All data you input into the platform</li>
-                  <li>All interactions with the platform interface</li>
-                  <li>All decisions made based on information displayed on the platform</li>
-                  <li>All consequences of your use of the platform</li>
-                  <li>Compliance with all applicable laws and regulations</li>
+                  <li>Deploy actual tokens to any blockchain network</li>
+                  <li>Execute real cryptocurrency transactions</li>
+                  <li>Store or manage real digital assets</li>
+                  <li>Provide financial services of any kind</li>
+                  <li>Guarantee the functionality of any demonstrated features</li>
+                  <li>Offer investment advice or opportunities</li>
                 </ul>
-                <p>
-                  You acknowledge that you use this platform entirely at your own risk and discretion.
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 text-white">3. No Warranties or Guarantees</h2>
+                <p className="mb-4">
+                  THE PLATFORM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. WE EXPRESSLY DISCLAIM ALL WARRANTIES, 
+                  WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING BUT NOT LIMITED TO:
                 </p>
+                <ul className="list-disc list-inside ml-4 space-y-2 mb-4">
+                  <li>MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE</li>
+                  <li>NON-INFRINGEMENT OF THIRD-PARTY RIGHTS</li>
+                  <li>ACCURACY, COMPLETENESS, OR RELIABILITY OF CONTENT</li>
+                  <li>CONTINUOUS AVAILABILITY OR ERROR-FREE OPERATION</li>
+                  <li>SECURITY OR PRIVACY PROTECTION</li>
+                </ul>
               </section>
 
               <section>
                 <h2 className="text-2xl font-semibold mb-4 text-white">4. Limitation of Liability</h2>
                 <p className="mb-4">
-                  The operators, developers, and all parties associated with Omnipad shall NOT be liable for any damages, 
-                  losses, or consequences arising from your use of this platform, including but not limited to:
+                  IN NO EVENT SHALL OMNIPAD, ITS OPERATORS, DEVELOPERS, OR AFFILIATES BE LIABLE FOR ANY:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-2 mb-4">
-                  <li>Direct, indirect, incidental, or consequential damages</li>
-                  <li>Loss of profits, data, or business opportunities</li>
-                  <li>Technical malfunctions or service interruptions</li>
-                  <li>Security breaches or data loss</li>
-                  <li>Any actions taken based on platform interactions</li>
+                  <li>DIRECT, INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES</li>
+                  <li>LOSS OF PROFITS, DATA, OR OTHER INTANGIBLE LOSSES</li>
+                  <li>DAMAGES RESULTING FROM YOUR USE OR INABILITY TO USE THE PLATFORM</li>
+                  <li>UNAUTHORIZED ACCESS TO OR ALTERATION OF YOUR DATA</li>
+                  <li>STATEMENTS OR CONDUCT OF ANY THIRD PARTY</li>
+                  <li>ANY OTHER MATTER RELATING TO THE PLATFORM</li>
                 </ul>
                 <p>
-                  Our total liability to you for all claims shall not exceed zero dollars ($0).
+                  THIS LIMITATION APPLIES REGARDLESS OF THE LEGAL THEORY ON WHICH THE CLAIM IS BASED.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">5. No Warranties</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">5. User Responsibilities and Prohibited Uses</h2>
+                <p className="mb-4">You agree NOT to:</p>
+                <ul className="list-disc list-inside ml-4 space-y-2 mb-4">
+                  <li>Use the Platform for any actual financial transactions</li>
+                  <li>Input real private keys, seed phrases, or sensitive information</li>
+                  <li>Attempt to reverse engineer or exploit the Platform</li>
+                  <li>Use the Platform for illegal or unauthorized purposes</li>
+                  <li>Violate any applicable laws or regulations</li>
+                  <li>Interfere with the Platform's operation or security</li>
+                  <li>Misrepresent the Platform's capabilities to others</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 text-white">6. No Obligation to Provide Services</h2>
                 <p className="mb-4">
-                  This platform is provided "as is" without any warranties of any kind, express or implied. 
-                  We disclaim all warranties including but not limited to:
+                  We have NO OBLIGATION to:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-2 mb-4">
-                  <li>Merchantability and fitness for a particular purpose</li>
-                  <li>Accuracy, completeness, or reliability of information</li>
-                  <li>Uninterrupted or error-free operation</li>
-                  <li>Security or freedom from viruses or harmful components</li>
+                  <li>Maintain, update, or improve the Platform</li>
+                  <li>Provide customer support or technical assistance</li>
+                  <li>Preserve any data or content you input</li>
+                  <li>Ensure continuous availability of the Platform</li>
+                  <li>Implement any requested features or fixes</li>
+                  <li>Respond to inquiries or complaints</li>
                 </ul>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">6. Indemnification</h2>
-                <p>
-                  You agree to indemnify, defend, and hold harmless Omnipad, its operators, developers, and affiliates 
-                  from any claims, damages, losses, liabilities, and expenses (including attorney fees) arising out of 
-                  or relating to your use of the platform or violation of these terms.
+                <h2 className="text-2xl font-semibold mb-4 text-white">7. Value and Payment Disclaimer</h2>
+                <p className="mb-4">
+                  Any value, cryptocurrency, or payment sent to addresses displayed on this Platform is done entirely 
+                  at your own free will and discretion. By sending any value, you acknowledge:
                 </p>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">7. Prohibited Uses</h2>
-                <p className="mb-4">You agree not to use the platform for any unlawful purposes or any purposes prohibited by these terms, including:</p>
                 <ul className="list-disc list-inside ml-4 space-y-2 mb-4">
-                  <li>Attempting to create actual tokens or conduct real transactions</li>
-                  <li>Violating any applicable laws or regulations</li>
-                  <li>Interfering with the platform's security features</li>
-                  <li>Attempting to gain unauthorized access to systems</li>
-                  <li>Using the platform for commercial purposes without authorization</li>
+                  <li>You are making a voluntary gift with no expectation of return</li>
+                  <li>No services, products, or benefits are guaranteed in exchange</li>
+                  <li>All transactions are final and irreversible</li>
+                  <li>We assume no responsibility for funds sent to any address</li>
+                  <li>You understand this is a demonstration platform only</li>
                 </ul>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">8. Governing Law</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">8. Intellectual Property</h2>
                 <p>
-                  These terms shall be governed by and construed in accordance with applicable laws. 
-                  Any disputes shall be resolved in the appropriate courts with exclusive jurisdiction.
+                  All content, features, and functionality of the Platform are owned by us or our licensors and are 
+                  protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, 
+                  distribute, or create derivative works without permission.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">9. Severability</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">9. Indemnification</h2>
                 <p>
-                  If any provision of these terms is deemed invalid or unenforceable, the remaining provisions 
-                  shall continue in full force and effect.
+                  You agree to indemnify and hold harmless Omnipad and its operators from any claims, damages, losses, 
+                  or expenses arising from your use of the Platform or violation of these Terms.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">10. Contact Information</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">10. Termination</h2>
                 <p>
-                  For questions about these Terms of Service, please contact us through our official channels. 
-                  We reserve the right to not respond to inquiries at our sole discretion.
+                  We may terminate or suspend your access immediately, without prior notice, for any reason, 
+                  including breach of these Terms. Upon termination, your right to use the Platform ceases immediately.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 text-white">11. Changes to Terms</h2>
+                <p>
+                  We reserve the right to modify these Terms at any time without notice. Changes are effective 
+                  immediately upon posting. Your continued use constitutes acceptance of the modified Terms.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 text-white">12. Governing Law</h2>
+                <p>
+                  These Terms shall be governed by and construed in accordance with applicable laws, without regard 
+                  to conflict of law principles. Any disputes shall be resolved in courts of competent jurisdiction.
                 </p>
               </section>
 
               <div className="mt-12 p-6 bg-red-900/20 border border-red-500/30 rounded-lg">
                 <h3 className="text-xl font-bold text-red-400 mb-2">⚠️ Final Warning</h3>
-                <p className="text-red-300">
-                  By using this platform, you acknowledge that you understand this is a demonstration platform only, 
-                  that no real services are provided, and that you assume all risks and responsibilities for your usage.
-                </p>
+                <div className="space-y-2 text-red-300">
+                  <p><strong>This is a demonstration platform with no real services provided.</strong></p>
+                  <p><strong>We accept zero responsibility for any consequences of your usage.</strong></p>
+                  <p><strong>Any value sent to displayed addresses is sent entirely at your own risk and free will.</strong></p>
+                  <p><strong>We provide no warranties, guarantees, or obligations whatsoever.</strong></p>
+                </div>
               </div>
             </div>
           </div>

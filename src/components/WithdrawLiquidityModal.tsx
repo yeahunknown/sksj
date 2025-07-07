@@ -64,7 +64,7 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token, onWithdrawSuccess }: W
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-modal-in"
       onClick={handleBackdropClick}
     >
-      <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-modal-scale border border-gray-700">
+      <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-modal-scale border border-gray-700 transition-all duration-300">
         {/* PGPAY Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
