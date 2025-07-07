@@ -86,20 +86,40 @@
   }
 }
 
-/* Contact button styling */
-.contact-button {
+/* Contact button styling - force white text */
+.contact-button,
+.contact-button *,
+button[class*="contact"] {
   color: white !important;
+  fill: white !important;
 }
 
 .contact-button:hover,
 .contact-button:focus,
 .contact-button:active,
-.contact-button:visited {
+.contact-button:visited,
+.contact-button:hover *,
+.contact-button:focus *,
+.contact-button:active *,
+.contact-button:visited * {
+  color: white !important;
+  fill: white !important;
+}
+
+header button {
   color: white !important;
 }
 
-.contact-button svg {
+header button:hover,
+header button:focus,
+header button:active,
+header button:visited {
   color: white !important;
+}
+
+header button svg {
+  color: white !important;
+  fill: white !important;
 }
 
 @layer base {

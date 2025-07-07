@@ -22,6 +22,13 @@ interface TokenData {
   freezeAuthority: boolean;
   revokeMint: boolean;
   revokeMetadata: boolean;
+  socialTags: boolean;
+  telegram: string;
+  website: string;
+  twitter: string;
+  creatorName: string;
+  customCreatorAddress: boolean;
+  creatorAddress: string;
 }
 
 const CreateToken = () => {
@@ -41,6 +48,13 @@ const CreateToken = () => {
     freezeAuthority: false,
     revokeMint: false,
     revokeMetadata: false,
+    socialTags: false,
+    telegram: '',
+    website: '',
+    twitter: '',
+    creatorName: '',
+    customCreatorAddress: false,
+    creatorAddress: '',
   });
 
   const updateTokenData = (field: keyof TokenData, value: any) => {
@@ -59,6 +73,13 @@ const CreateToken = () => {
       freezeAuthority: false,
       revokeMint: false,
       revokeMetadata: false,
+      socialTags: false,
+      telegram: '',
+      website: '',
+      twitter: '',
+      creatorName: '',
+      customCreatorAddress: false,
+      creatorAddress: '',
     });
     setCurrentStep(1);
   };
@@ -89,6 +110,8 @@ const CreateToken = () => {
     if (tokenData.freezeAuthority) price += 0.1;
     if (tokenData.revokeMint) price += 0.1;
     if (tokenData.revokeMetadata) price += 0.1;
+    if (tokenData.socialTags) price += 0.1;
+    if (tokenData.customCreatorAddress) price += 0.15;
     return price;
   };
 
@@ -307,6 +330,77 @@ const CreateToken = () => {
                       className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500 min-h-32 resize-none"
                     />
                   </div>
+
+                  <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-medium text-white flex items-center gap-2">
+                          Social Tags
+                          <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
+                        </div>
+                        <div className="text-sm text-gray-400">Add social links and creator info</div>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={tokenData.socialTags}
+                        onChange={(e) => updateTokenData('socialTags', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    </label>
+                  </div>
+
+                  {tokenData.socialTags && (
+                    <div className="space-y-4 p-4 bg-gray-800/30 border border-gray-600 rounded-xl">
+                      <div>
+                        <Label htmlFor="telegram">Telegram</Label>
+                        <Input
+                          id="telegram"
+                          value={tokenData.telegram}
+                          onChange={(e) => updateTokenData('telegram', e.target.value)}
+                          placeholder="@yourtelegram"
+                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="website">Website</Label>
+                        <Input
+                          id="website"
+                          value={tokenData.website}
+                          onChange={(e) => updateTokenData('website', e.target.value)}
+                          placeholder="https://yourwebsite.com"
+                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="twitter">Twitter</Label>
+                        <Input
+                          id="twitter"
+                          value={tokenData.twitter}
+                          onChange={(e) => updateTokenData('twitter', e.target.value)}
+                          placeholder="@yourtwitter"
+                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="creatorName">Creator Name</Label>
+                        <Input
+                          id="creatorName"
+                          value={tokenData.creatorName}
+                          onChange={(e) => updateTokenData('creatorName', e.target.value)}
+                          placeholder="Your name or team name"
+                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -324,7 +418,10 @@ const CreateToken = () => {
                           <Shield className="w-4 h-4 text-blue-400" />
                         </div>
                         <div>
-                          <div className="font-medium text-white">Freeze Authority</div>
+                          <div className="font-medium text-white flex items-center gap-2">
+                            Freeze Authority
+                            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
+                          </div>
                           <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
@@ -345,7 +442,10 @@ const CreateToken = () => {
                           <Lock className="w-4 h-4 text-green-400" />
                         </div>
                         <div>
-                          <div className="font-medium text-white">Revoke Mint Authority</div>
+                          <div className="font-medium text-white flex items-center gap-2">
+                            Revoke Mint Authority
+                            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
+                          </div>
                           <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
@@ -366,7 +466,10 @@ const CreateToken = () => {
                           <FileText className="w-4 h-4 text-purple-400" />
                         </div>
                         <div>
-                          <div className="font-medium text-white">Revoke Metadata Authority</div>
+                          <div className="font-medium text-white flex items-center gap-2">
+                            Revoke Metadata Authority
+                            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
+                          </div>
                           <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
@@ -380,6 +483,45 @@ const CreateToken = () => {
                         <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
                       </label>
                     </div>
+
+                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="font-medium text-white flex items-center gap-2">
+                            Custom Creator Address
+                            <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded">+0.15 SOL</span>
+                          </div>
+                          <div className="text-sm text-gray-400">Customize who created the token</div>
+                        </div>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={tokenData.customCreatorAddress}
+                          onChange={(e) => updateTokenData('customCreatorAddress', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                      </label>
+                    </div>
+
+                    {tokenData.customCreatorAddress && (
+                      <div className="p-4 bg-gray-800/30 border border-gray-600 rounded-xl">
+                        <Label htmlFor="creatorAddress">Creator Address</Label>
+                        <Input
+                          id="creatorAddress"
+                          value={tokenData.creatorAddress}
+                          onChange={(e) => updateTokenData('creatorAddress', e.target.value)}
+                          placeholder="Enter Solana wallet address"
+                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="bg-gray-800/50 border border-gray-600 rounded-xl p-4">
@@ -401,10 +543,16 @@ const CreateToken = () => {
                           <span>+0.1 SOL</span>
                         </div>
                       )}
-                      {tokenData.revokeMetadata && (
+                      {tokenData.socialTags && (
                         <div className="flex justify-between">
-                          <span>Revoke Metadata Authority</span>
+                          <span>Social Tags</span>
                           <span>+0.1 SOL</span>
+                        </div>
+                      )}
+                      {tokenData.customCreatorAddress && (
+                        <div className="flex justify-between">
+                          <span>Custom Creator Address</span>
+                          <span>+0.15 SOL</span>
                         </div>
                       )}
                       <div className="border-t border-white/20 pt-2 flex justify-between font-bold text-lg">
