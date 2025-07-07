@@ -9,7 +9,6 @@ const Header = () => {
     { name: 'Home', path: '/' },
     { name: 'Create Token', path: '/create' },
     { name: 'Add Liquidity', path: '/liquidity' },
-    { name: 'Portfolio', path: '/portfolio' },
   ];
 
   return (
