@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -19,20 +18,10 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
       onClick={handleBackdropClick}
-      style={{ 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
     >
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl transform transition-all duration-300 scale-100">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl animate-scale-in">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-bold text-white">Need Support?</h3>
           <Button

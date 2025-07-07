@@ -23,7 +23,7 @@ const Liquidity = () => {
   const [lpSizeError, setLpSizeError] = useState('');
   const [addressError, setAddressError] = useState('');
 
-  // Load last created token data and automatically populate the form
+  // Load last created token data only if token exists
   useEffect(() => {
     const lastToken = localStorage.getItem('lastCreatedToken');
     if (lastToken) {
@@ -40,7 +40,7 @@ const Liquidity = () => {
   const updateFormData = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
-    // Validate token address - must be exactly 44 characters and end with "omni"
+    // Validate token address
     if (field === 'tokenAddress') {
       const address = value as string;
       if (address && (address.length !== 44 || !address.endsWith('omni'))) {
