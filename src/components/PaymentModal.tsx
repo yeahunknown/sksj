@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Clock, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -69,17 +68,10 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
     
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Check if signature is exactly 88 characters or equals "1337"
-    if (signature === '1337' || signature.length === 88) {
+    if (signature === '1337') {
       onSuccess();
     } else {
-      // Close modal and show toast
-      onClose();
-      setSignature('');
-      toast({
-        title: "Payment not verified. Please try again.",
-        variant: "destructive",
-      });
+      alert('Invalid transaction signature. Please try again.');
     }
     
     setIsProcessing(false);

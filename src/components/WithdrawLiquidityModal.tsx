@@ -31,13 +31,10 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token, onWithdrawSuccess }: W
     }
   };
 
-  const isValidAddress = address.trim().length === 44;
-
   const handleWithdraw = async () => {
-    if (!isValidAddress) {
+    if (!address.trim()) {
       toast({
-        title: "Invalid Solana address",
-        description: "Address must be exactly 44 characters long",
+        title: "PGPAY: Invalid address entered",
         variant: "destructive",
       });
       return;
@@ -58,7 +55,7 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token, onWithdrawSuccess }: W
     }
     
     toast({
-      title: `${token.name} Liquidity Successfully Withdrawn`,
+      title: `${token.name} Liquidity Successfully Withdrawed`,
     });
   };
 
@@ -94,23 +91,16 @@ const WithdrawLiquidityModal = ({ isOpen, onClose, token, onWithdrawSuccess }: W
             <Input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Enter your Solana wallet address (44 characters)"
-              className={`bg-gray-800 border-gray-700 text-white rounded-lg h-12 ${
-                address && !isValidAddress ? 'border-red-500' : ''
-              }`}
+              placeholder="Enter your Solana wallet address"
+              className="bg-gray-800 border-gray-700 text-white rounded-lg h-12"
               disabled={isLoading}
             />
-            {address && !isValidAddress && (
-              <p className="text-red-400 text-xs mt-1">
-                Address must be exactly 44 characters ({address.length}/44)
-              </p>
-            )}
           </div>
 
           <Button
             onClick={handleWithdraw}
-            disabled={!isValidAddress || isLoading}
-            className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-lg h-12 disabled:opacity-50"
+            disabled={!address.trim() || isLoading}
+            className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-lg h-12"
           >
             {isLoading ? (
               <>

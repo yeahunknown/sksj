@@ -6,7 +6,6 @@ import { Search, TrendingUp, TrendingDown, Copy } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import WithdrawLiquidityModal from '@/components/WithdrawLiquidityModal';
 import { toast } from '@/hooks/use-toast';
-import { generateTokenAddress, calculateRealisticMetrics, generateVolatileChartData, generateCrashChartData } from '@/utils/tokenUtils';
 
 interface Token {
   id: string;
@@ -26,8 +25,6 @@ interface Token {
   isDead: boolean;
   liquidityAdded?: number;
   isAnimating?: boolean;
-  shift6Triggered?: boolean;
-  shift6StartTime?: number;
 }
 
 // Session storage for non-persistent tokens
@@ -38,108 +35,137 @@ const Portfolio = () => {
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
-  // Load tokens from session memory only
+  // Load tokens from session memory only (no localStorage)
   useEffect(() => {
     setTokens(sessionTokens);
   }, []);
 
-  // Animate transaction counts and handle Shift+6 simulation
+  // Animate transaction counts for active tokens
   useEffect(() => {
     const interval = setInterval(() => {
-      const now = Date.now();
-      
-      setTokens(prevTokens => 
-        prevTokens.map(token => {
-          let updatedToken = { ...token };
-          
-          // Regular transaction animation for active tokens
-          if (token.hasLiquidity && !token.isDead && token.isAnimating) {
-            updatedToken.transactions = token.transactions + Math.floor(Math.random() * 3) + 1;
-          }
-          
-          // Shift+6 simulation after 30 seconds
-          if (token.hasLiquidity && !token.isDead && !token.shift6Triggered && token.liquidityAdded) {
-            const timeSinceAdded = now - token.liquidityAdded;
-            if (timeSinceAdded >= 30000) { // 30 seconds
-              updatedToken = {
-                ...updatedToken,
-                shift6Triggered: true,
-                shift6StartTime: now,
-                liquidity: 59.67,
-                price: 0.0000182,
-                volume24h: 7760,
-                marketCap: 18240,
-                priceChange24h: 12.5,
-                chartData: generateVolatileChartData(0.0000182, true)
-              };
-            }
-          }
-          
-          return updatedToken;
-        })
-      );
-      
-      // Update session storage
-      sessionTokens = sessionTokens.map(token => {
-        const now = Date.now();
-        let updatedToken = { ...token };
-        
-        if (token.hasLiquidity && !token.isDead && token.isAnimating) {
-          updatedToken.transactions = token.transactions + Math.floor(Math.random() * 3) + 1;
-        }
-        
-        if (token.hasLiquidity && !token.isDead && !token.shift6Triggered && token.liquidityAdded) {
-          const timeSinceAdded = now - token.liquidityAdded;
-          if (timeSinceAdded >= 30000) {
-            updatedToken = {
-              ...updatedToken,
-              shift6Triggered: true,
-              shift6StartTime: now,
-              liquidity: 59.67,
-              price: 0.0000182,
-              volume24h: 7760,
-              marketCap: 18240,
-              priceChange24h: 12.5,
-              chartData: generateVolatileChartData(0.0000182, true)
-            };
-          }
-        }
-        
-        return updatedToken;
-      });
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Chart animation interval for volatile movements
-  useEffect(() => {
-    const chartInterval = setInterval(() => {
       setTokens(prevTokens => 
         prevTokens.map(token => {
           if (token.hasLiquidity && !token.isDead && token.isAnimating) {
             return {
               ...token,
-              chartData: generateVolatileChartData(token.price, true)
+              transactions: token.transactions + Math.floor(Math.random() * 5) + 1
             };
           }
           return token;
         })
       );
       
+      // Update session storage
       sessionTokens = sessionTokens.map(token => {
         if (token.hasLiquidity && !token.isDead && token.isAnimating) {
           return {
             ...token,
-            chartData: generateVolatileChartData(token.price, true)
+            transactions: token.transactions + Math.floor(Math.random() * 5) + 1
           };
         }
         return token;
       });
-    }, 5000);
+    }, 3000);
 
-    return () => clearInterval(chartInterval);
+    return () => clearInterval(interval);
   }, []);
+
+  // Handle Shift + 6 key combination for demo values
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.shiftKey && event.key === '^') {
+        if (tokens.length > 0) {
+          const updatedTokens = tokens.map(token => ({
+            ...token,
+            liquidity: 59.67,
+            marketCap: 18240,
+            volume24h: 7760,
+            price: 0.0000182,
+            priceChange24h: 12.5,
+            hasLiquidity: true,
+            isAnimating: true,
+            chartData: generateActiveChartData(0.0000182)
+          }));
+          setTokens(updatedTokens);
+          sessionTokens = updatedTokens;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [tokens]);
+
+  const generateZeroChartData = () => {
+    const data = [];
+    const now = Date.now();
+    for (let i = 0; i < 24; i++) {
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: 0,
+        timestamp: now - (24 - i) * 3600000
+      });
+    }
+    return data;
+  };
+
+  const generateActiveChartData = (basePrice: number) => {
+    const data = [];
+    const now = Date.now();
+    let currentPrice = basePrice;
+    
+    for (let i = 0; i < 24; i++) {
+      // Create volatile price movements
+      const volatility = 0.3; // 30% max change per hour
+      const change = (Math.random() - 0.5) * volatility;
+      currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
+      
+      data.push({
+        time: `${i.toString().padStart(2, '0')}:00`,
+        price: currentPrice,
+        timestamp: now - (24 - i) * 3600000
+      });
+    }
+    return data;
+  };
+
+  const generateCrashChartData = (token: Token) => {
+    const data = [...token.chartData];
+    const lastPrice = data[data.length - 1]?.price || 0;
+    
+    // Add crash data points
+    const now = Date.now();
+    for (let i = 0; i < 5; i++) {
+      const crashMultiplier = Math.pow(0.1, i + 1);
+      data.push({
+        time: `${(23 + i).toString()}:${(i * 12).toString().padStart(2, '0')}`,
+        price: lastPrice * crashMultiplier,
+        timestamp: now + i * 60000
+      });
+    }
+    
+    return data;
+  };
+
+  const calculateRealisticValues = (liquidity: number, totalSupply: number) => {
+    // Price = Liquidity / Total Supply (simplified DEX formula)
+    const price = liquidity / totalSupply;
+    
+    // Volume is 15-40% of liquidity
+    const volumeMultiplier = 0.15 + Math.random() * 0.25;
+    const volume24h = Math.floor(liquidity * volumeMultiplier);
+    
+    // Market Cap = Price * Total Supply
+    const marketCap = Math.floor(price * totalSupply);
+    
+    // Price change is random between -20% to +30%
+    const priceChange24h = Math.random() * 50 - 20;
+    
+    // Starting transactions
+    const transactions = Math.floor(Math.random() * 80) + 20;
+    
+    return { price, volume24h, marketCap, priceChange24h, transactions };
+  };
 
   const handleWithdrawLiquidity = (token: Token) => {
     setSelectedToken(token);
@@ -149,18 +175,17 @@ const Portfolio = () => {
   const handleWithdrawSuccess = (tokenId: string) => {
     const updatedTokens = tokens.map(token => {
       if (token.id === tokenId) {
-        const originalPrice = token.price;
         return {
           ...token,
           isDead: true,
-          liquidity: token.liquidity * 0.02, // 98% drop
-          price: originalPrice * 0.02,
-          priceChange24h: -98,
-          volume24h: Math.floor(token.volume24h * 0.02),
-          marketCap: Math.floor(token.marketCap * 0.02),
+          liquidity: 0,
+          price: 0,
+          priceChange24h: -100,
+          volume24h: 0,
+          marketCap: 0,
           hasLiquidity: false,
           isAnimating: false,
-          chartData: generateCrashChartData(token.chartData, originalPrice * 0.02)
+          chartData: generateCrashChartData(token)
         };
       }
       return token;
@@ -252,15 +277,21 @@ const Portfolio = () => {
                       <h3 className="text-xl font-bold">{token.name}</h3>
                       <p className="text-gray-400">${token.symbol}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-xs text-gray-500 font-mono">
-                          {token.address.slice(0, 8)}...{token.address.slice(-8)}
-                        </span>
-                        <button
-                          onClick={() => copyAddress(token.address)}
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
+                        {token.address ? (
+                          <>
+                            <span className="text-xs text-gray-500 font-mono">
+                              {token.address.slice(0, 8)}...{token.address.slice(-8)}
+                            </span>
+                            <button
+                              onClick={() => copyAddress(token.address)}
+                              className="text-gray-400 hover:text-white transition-colors"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-500">No address</span>
+                        )}
                       </div>
                       <p className={`text-sm mt-1 ${token.liquidity > 0 ? 'text-blue-400' : 'text-gray-500'}`}>
                         {token.liquidity > 0 ? `${token.liquidity.toFixed(2)} SOL` : 'No liquidity'}
@@ -285,7 +316,7 @@ const Portfolio = () => {
                           stroke={token.isDead ? "#EF4444" : (token.hasLiquidity ? "#10B981" : "#6B7280")}
                           strokeWidth={2}
                           dot={false}
-                          animationDuration={token.isDead ? 0 : 800}
+                          animationDuration={token.isDead ? 0 : 1000}
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -372,14 +403,13 @@ const Portfolio = () => {
 };
 
 // Export function to add tokens from other components
-export const addTokenToSession = (token: Omit<Token, 'chartData' | 'address'>) => {
+export const addTokenToSession = (token: Omit<Token, 'chartData'>) => {
   const newToken: Token = {
     ...token,
-    address: generateTokenAddress(),
     totalSupply: token.totalSupply || 1000000,
     transactions: 0,
     isAnimating: false,
-    chartData: [{ time: '00:00', price: 0, timestamp: Date.now() }]
+    chartData: generateZeroChartData()
   };
   
   sessionTokens.push(newToken);
@@ -389,19 +419,72 @@ export const addTokenToSession = (token: Omit<Token, 'chartData' | 'address'>) =
 export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number) => {
   sessionTokens = sessionTokens.map(token => {
     if (token.name === tokenName) {
-      const metrics = calculateRealisticMetrics(liquidityAmount, token.totalSupply);
+      const realisticValues = calculateRealisticValues(liquidityAmount, token.totalSupply);
       return {
         ...token,
         liquidity: liquidityAmount,
         hasLiquidity: true,
         isAnimating: true,
         liquidityAdded: Date.now(),
-        ...metrics,
-        chartData: generateVolatileChartData(metrics.price, true)
+        ...realisticValues,
+        chartData: generateActiveChartData(realisticValues.price)
       };
     }
     return token;
   });
 };
+
+function generateZeroChartData() {
+  const data = [];
+  const now = Date.now();
+  for (let i = 0; i < 24; i++) {
+    data.push({
+      time: `${i.toString().padStart(2, '0')}:00`,
+      price: 0,
+      timestamp: now - (24 - i) * 3600000
+    });
+  }
+  return data;
+}
+
+function generateActiveChartData(basePrice: number) {
+  const data = [];
+  const now = Date.now();
+  let currentPrice = basePrice;
+  
+  for (let i = 0; i < 24; i++) {
+    // Create volatile price movements
+    const volatility = 0.3; // 30% max change per hour
+    const change = (Math.random() - 0.5) * volatility;
+    currentPrice = Math.max(currentPrice * (1 + change), basePrice * 0.1);
+    
+    data.push({
+      time: `${i.toString().padStart(2, '0')}:00`,
+      price: currentPrice,
+      timestamp: now - (24 - i) * 3600000
+    });
+  }
+  return data;
+}
+
+function calculateRealisticValues(liquidity: number, totalSupply: number) {
+  // Price = Liquidity / Total Supply (simplified DEX formula)
+  const price = liquidity / totalSupply;
+  
+  // Volume is 15-40% of liquidity
+  const volumeMultiplier = 0.15 + Math.random() * 0.25;
+  const volume24h = Math.floor(liquidity * volumeMultiplier);
+  
+  // Market Cap = Price * Total Supply
+  const marketCap = Math.floor(price * totalSupply);
+  
+  // Price change is random between -20% to +30%
+  const priceChange24h = Math.random() * 50 - 20;
+  
+  // Starting transactions
+  const transactions = Math.floor(Math.random() * 80) + 20;
+  
+  return { price, volume24h, marketCap, priceChange24h, transactions };
+}
 
 export default Portfolio;

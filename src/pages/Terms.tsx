@@ -9,19 +9,7 @@ const Terms = () => {
           <div className="glass rounded-2xl p-8">
             <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
             
-            <div className="space-y-8 text-gray-300 select-text">
-              <section className="bg-red-900/20 border border-red-500/30 rounded-xl p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-red-400">CRITICAL DISCLAIMER</h2>
-                <p className="text-red-300 font-semibold mb-4">
-                  OMNIPAD PROVIDES NO GUARANTEE OF SERVICE. USERS ARE RESPONSIBLE FOR THEIR OWN ACTIONS. 
-                  OMNIPAD AND ITS OPERATORS ASSUME NO LIABILITY FOR MISUSE, LOSSES, OR DAMAGES OF ANY KIND.
-                </p>
-                <p className="text-red-300">
-                  By using this platform, you acknowledge that you are participating in experimental blockchain technology 
-                  that carries significant financial risk, including total loss of funds.
-                </p>
-              </section>
-
+            <div className="space-y-8 text-gray-300">
               <section>
                 <h2 className="text-2xl font-semibold mb-4 text-white">1. Acceptance of Terms</h2>
                 <p className="mb-4">
@@ -96,19 +84,7 @@ const Terms = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">6. No Refunds Policy</h2>
-                <p className="text-red-400 font-semibold mb-4">
-                  ALL TRANSACTIONS ARE FINAL. NO REFUNDS WILL BE PROVIDED UNDER ANY CIRCUMSTANCES.
-                </p>
-                <p>
-                  This includes but is not limited to failed token creation, liquidity provision errors, 
-                  user mistakes, or any technical issues. Once a transaction is submitted to the blockchain, 
-                  it cannot be reversed.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">7. Indemnification</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">6. Indemnification</h2>
                 <p>
                   You agree to indemnify, defend, and hold harmless Omnipad, its operators, developers, and affiliates from any claims, 
                   damages, losses, or expenses (including legal fees) arising from your use of the platform or violation of these terms.
@@ -116,7 +92,7 @@ const Terms = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">8. No Warranties</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">7. No Warranties</h2>
                 <p className="mb-4">
                   The platform is provided "AS IS" without warranties of any kind. We do not guarantee:
                 </p>
@@ -130,7 +106,7 @@ const Terms = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">9. Regulatory Compliance</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">8. Regulatory Compliance</h2>
                 <p>
                   You are responsible for ensuring your use of Omnipad complies with all applicable laws and regulations in your jurisdiction. 
                   Token creation and trading may be subject to securities laws, tax obligations, and other regulatory requirements.
@@ -138,14 +114,14 @@ const Terms = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">10. Modifications to Terms</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">9. Modifications to Terms</h2>
                 <p>
                   We reserve the right to modify these terms at any time. Continued use of the platform after changes constitutes acceptance of new terms.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">11. Governing Law and Jurisdiction</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">10. Governing Law and Jurisdiction</h2>
                 <p>
                   These terms are governed by the laws of the jurisdiction where Omnipad operates. Any disputes shall be resolved through binding arbitration.
                 </p>
@@ -153,10 +129,10 @@ const Terms = () => {
 
               <section className="bg-red-900/20 border border-red-500/30 rounded-xl p-6">
                 <h2 className="text-2xl font-semibold mb-4 text-red-400">FINAL WARNING</h2>
-                <p className="text-red-300 font-semibold">
+                <p className="text-red-300">
                   CRYPTOCURRENCY AND TOKEN TRADING IS EXTREMELY RISKY. MOST TOKENS BECOME WORTHLESS. 
                   NEVER INVEST MORE THAN YOU CAN AFFORD TO LOSE COMPLETELY. OMNIPAD TAKES NO RESPONSIBILITY 
-                  FOR YOUR FINANCIAL DECISIONS OR OUTCOMES. THIS SITE PROVIDES NO GUARANTEE OF SERVICE.
+                  FOR YOUR FINANCIAL DECISIONS OR OUTCOMES.
                 </p>
               </section>
             </div>

@@ -9,15 +9,7 @@ const Privacy = () => {
           <div className="glass rounded-2xl p-8">
             <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
             
-            <div className="space-y-8 text-gray-300 select-text">
-              <section className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-yellow-400">IMPORTANT NOTICE</h2>
-                <p className="text-yellow-300 font-semibold">
-                  OMNIPAD PROVIDES NO GUARANTEE OF SERVICE OR DATA PROTECTION. USERS ARE RESPONSIBLE FOR THEIR OWN PRIVACY 
-                  AND SECURITY. USE THIS PLATFORM AT YOUR OWN RISK.
-                </p>
-              </section>
-
+            <div className="space-y-8 text-gray-300">
               <section>
                 <h2 className="text-2xl font-semibold mb-4 text-white">1. Information Collection</h2>
                 <p className="mb-4">
@@ -63,21 +55,7 @@ const Privacy = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">4. No Guarantee of Privacy</h2>
-                <p className="mb-4 text-red-400 font-semibold">
-                  WE PROVIDE NO GUARANTEES REGARDING DATA PRIVACY OR SECURITY. Users assume all risks related to privacy breaches, 
-                  data exposure, or unauthorized access to their information.
-                </p>
-                <ul className="list-disc list-inside ml-4 space-y-2">
-                  <li>Third-party services may collect additional data</li>
-                  <li>Browser vulnerabilities could expose local data</li>
-                  <li>Network attacks could compromise communications</li>
-                  <li>Regulatory authorities may access blockchain data</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">5. Third-Party Services</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">4. Third-Party Services</h2>
                 <p className="mb-4">
                   We may integrate with third-party services for enhanced functionality:
                 </p>
@@ -93,26 +71,23 @@ const Privacy = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">6. Data Security Limitations</h2>
-                <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 mb-4">
-                  <p className="text-red-300 font-semibold">
-                    NO SYSTEM IS 100% SECURE. WE ASSUME NO LIABILITY FOR DATA BREACHES OR SECURITY INCIDENTS.
-                  </p>
-                </div>
+                <h2 className="text-2xl font-semibold mb-4 text-white">5. Data Security</h2>
                 <p className="mb-4">
-                  Despite security measures, risks remain:
+                  Since we don't collect personal data, there's minimal privacy risk from our platform directly. However:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-2">
-                  <li>Blockchain and smart contract vulnerabilities</li>
-                  <li>Third-party service compromises</li>
-                  <li>Zero-day exploits and unknown vulnerabilities</li>
-                  <li>User error and social engineering attacks</li>
-                  <li>Regulatory or legal changes affecting privacy</li>
+                  <li>Our website uses HTTPS encryption for secure communication</li>
+                  <li>We employ security best practices in our code</li>
+                  <li>Regular security audits are performed on our smart contracts</li>
+                  <li>We use secure hosting and infrastructure providers</li>
                 </ul>
+                <p className="text-red-400 font-semibold">
+                  You are responsible for protecting your wallet private keys and transaction signatures.
+                </p>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">7. Data Sharing and Sales</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">6. Data Sharing and Sales</h2>
                 <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-4 mb-4">
                   <p className="text-green-300 font-semibold">
                     WE DO NOT SELL, RENT, OR SHARE YOUR DATA WITH THIRD PARTIES FOR COMMERCIAL PURPOSES.
@@ -129,21 +104,49 @@ const Privacy = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">8. User Responsibilities</h2>
-                <p className="mb-4 text-yellow-400 font-semibold">
-                  YOU ARE SOLELY RESPONSIBLE FOR YOUR OWN PRIVACY AND SECURITY.
+                <h2 className="text-2xl font-semibold mb-4 text-white">7. User Rights and Control</h2>
+                <p className="mb-4">
+                  You have full control over your data:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-2">
-                  <li>Protect your private keys and wallet credentials</li>
-                  <li>Use secure devices and internet connections</li>
-                  <li>Regularly clear browser storage if desired</li>
-                  <li>Understand the public nature of blockchain transactions</li>
-                  <li>Research third-party services before using them</li>
+                  <li>Clear browser storage to remove local data</li>
+                  <li>Use private/incognito browsing mode</li>
+                  <li>Disconnect your wallet at any time</li>
+                  <li>Request information about any data we may have (though it's minimal)</li>
                 </ul>
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">9. Changes to Privacy Policy</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">8. Cookies and Tracking</h2>
+                <p className="mb-4">
+                  Omnipad uses minimal tracking:
+                </p>
+                <ul className="list-disc list-inside ml-4 space-y-2">
+                  <li>Essential cookies for basic functionality only</li>
+                  <li>No advertising or marketing cookies</li>
+                  <li>No cross-site tracking</li>
+                  <li>No behavioral profiling</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 text-white">9. Age Requirements</h2>
+                <p>
+                  You must be at least 18 years old (or the age of majority in your jurisdiction) to use Omnipad. 
+                  We do not knowingly collect information from minors.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 text-white">10. International Users</h2>
+                <p>
+                  Omnipad is accessible globally, but users are responsible for compliance with local laws. 
+                  Data processing occurs in accordance with applicable privacy regulations including GDPR, CCPA, and others.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 text-white">11. Changes to Privacy Policy</h2>
                 <p>
                   We may update this privacy policy periodically. Material changes will be communicated through our official channels. 
                   Continued use after changes constitutes acceptance of the updated policy.
@@ -151,18 +154,9 @@ const Privacy = () => {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">10. Contact Information</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-white">12. Contact Information</h2>
                 <p>
-                  For privacy-related questions or concerns, contact us through our official communication channels. 
-                  However, we provide no guarantee of response or resolution.
-                </p>
-              </section>
-
-              <section className="bg-red-900/20 border border-red-500/30 rounded-xl p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-red-400">FINAL DISCLAIMER</h2>
-                <p className="text-red-300 font-semibold">
-                  THIS PRIVACY POLICY PROVIDES NO GUARANTEES. OMNIPAD ASSUMES NO LIABILITY FOR PRIVACY BREACHES, 
-                  DATA LOSS, OR UNAUTHORIZED ACCESS TO YOUR INFORMATION. USE AT YOUR OWN RISK.
+                  For privacy-related questions or concerns, contact us through our official Telegram channel or other verified communication methods.
                 </p>
               </section>
             </div>
