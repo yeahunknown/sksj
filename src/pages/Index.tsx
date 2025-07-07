@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import AnimatedChart from '@/components/AnimatedChart';
+import { FeatureGrid } from '@/components/FeatureGrid';
+import { TokensSection } from '@/components/TokensSection';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Zap, Shield, TrendingUp } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
@@ -98,37 +100,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="glass rounded-2xl p-8 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Zap className="w-8 h-8 text-blue-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-4">Instant Deploy</h3>
-                <p className="text-gray-400">
-                  Deploy your token to Solana mainnet in under 30 seconds with our optimized infrastructure.
-                </p>
-              </div>
-
-              <div className="glass rounded-2xl p-8 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Shield className="w-8 h-8 text-green-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-4">Secure by Default</h3>
-                <p className="text-gray-400">
-                  Built-in security features including freeze authority, mint controls, and metadata protection.
-                </p>
-              </div>
-
-              <div className="glass rounded-2xl p-8 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <TrendingUp className="w-8 h-8 text-purple-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-4">Add Liquidity</h3>
-                <p className="text-gray-400">
-                  Seamlessly add liquidity to DEX platforms and track your token's performance in real-time.
-                </p>
-              </div>
-            </div>
+            <FeatureGrid />
           </div>
         </section>
 
@@ -152,6 +124,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Tokens Made by Customers Section */}
+        <TokensSection />
 
         {/* Footer */}
         <footer className="py-12 px-4 border-t border-white/10">

@@ -1,216 +1,221 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Rocket, Coins, BarChart3 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 
 interface AnimatedChartProps {
   className?: string;
 }
 
-type ChartState = 'loading' | 'adding-liquidity' | 'mooning';
-
 const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
-  const [points, setPoints] = useState<string>('');
-  const [chartState, setChartState] = useState<ChartState>('loading');
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
-    const generatePath = (state: ChartState) => {
-      const width = 300;
-      const height = 150;
-      const steps = 20;
-      
-      let path = `M 0 ${height}`;
-      
-      for (let i = 1; i <= steps; i++) {
-        const x = (width / steps) * i;
-        let y = height - 20; // Default flat line
-        
-        if (state === 'adding-liquidity') {
-          const baseY = height - 40 - (i * 2); // Slight upward trend
-          const variance = Math.sin(i * 0.5) * 8;
-          y = Math.max(20, Math.min(height - 20, baseY + variance));
-        } else if (state === 'mooning') {
-          const baseY = height - (i * 6); // Sharp upward trend
-          const variance = Math.sin(i * 0.8) * 10 + Math.random() * 8;
-          y = Math.max(10, Math.min(height - 10, baseY + variance));
-        }
-        
-        if (i === 1) {
-          path += ` L ${x} ${y}`;
-        } else {
-          const prevX = (width / steps) * (i - 1);
-          const controlX1 = prevX + (x - prevX) / 3;
-          const controlX2 = prevX + (2 * (x - prevX)) / 3;
-          path += ` C ${controlX1} ${points.split(' ').slice(-1)[0] || y} ${controlX2} ${y} ${x} ${y}`;
-        }
-      }
-      
-      return path;
-    };
-
-    const updateChart = () => {
-      setPoints(generatePath(chartState));
-    };
-
-    updateChart();
-    
-    // State progression
-    const stateTimer = setTimeout(() => {
-      if (chartState === 'loading') {
-        setChartState('adding-liquidity');
-      } else if (chartState === 'adding-liquidity') {
-        setChartState('mooning');
-      }
+    const interval = setInterval(() => {
+      setStep((prev) => (prev + 1) % 3);
     }, 3000);
 
-    const pathTimer = setInterval(updateChart, 1500);
-
-    return () => {
-      clearTimeout(stateTimer);
-      clearInterval(pathTimer);
-    };
-  }, [chartState]);
-
-  const getStateText = () => {
-    switch (chartState) {
-      case 'loading':
-        return 'Loading...';
-      case 'adding-liquidity':
-        return 'Adding liquidity...';
-      case 'mooning':
-        return 'To the moon!';
-    }
-  };
-
-  const getPercentage = () => {
-    switch (chartState) {
-      case 'loading':
-        return '';
-      case 'adding-liquidity':
-        return '+42%';
-      case 'mooning':
-        return '+1337%';
-    }
-  };
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className={`relative ${className}`}>
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 overflow-hidden">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          </div>
-          <div className={`font-mono text-lg transition-all duration-500 ${
-            chartState === 'mooning' ? 'text-green-400' : 
-            chartState === 'adding-liquidity' ? 'text-blue-400' : 'text-gray-400'
-          }`}>
-            {getPercentage()}
-          </div>
-        </div>
-        
-        <div className="mb-4">
-          <div className="text-2xl font-bold text-white mb-1">$OMNI</div>
-          <div className="text-sm text-gray-400 transition-all duration-500 flex items-center gap-2">
-            {chartState === 'adding-liquidity' && (
-              <svg className="w-4 h-4 text-blue-400 animate-spin" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" strokeWidth="2" d="M10 3v4m0 10v-4m7-7h-4M4 10h4"/>
-                <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="2" fill="none"/>
-              </svg>
-            )}
-            {chartState === 'mooning' && (
-              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            )}
-            {getStateText()}
-          </div>
-        </div>
-
-        <div className="relative h-32 mb-4">
-          {chartState === 'loading' ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-teal-600 rounded-full flex items-center justify-center mb-4 animate-spin">
-                <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-                <div className="bg-gradient-to-r from-blue-500 to-teal-500 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
-              </div>
-            </div>
-          ) : chartState === 'adding-liquidity' ? (
-            <div className="flex flex-col items-center justify-center h-full space-y-4">
-              <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 w-full">
-                <div className="text-white text-lg font-semibold">DRINKS</div>
-              </div>
-              <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 w-full">
-                <div className="text-white text-lg">1,000,000,000</div>
-              </div>
-              <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 w-full">
-                <div className="text-white text-lg font-semibold">$DRNKS</div>
-              </div>
-            </div>
-          ) : (
-            <svg
-              width="100%"
-              height="100%"
-              viewBox="0 0 300 150"
-              className="overflow-visible"
-            >
-              <defs>
-                <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
-                </linearGradient>
-              </defs>
-              
-              <path
-                d={points}
-                stroke="#3B82F6"
-                strokeWidth="3"
-                fill="none"
-                className="transition-all duration-1000 ease-in-out"
-              />
-              
-              <circle
-                cx="285"
-                cy="30"
-                r="6"
-                fill="#3B82F6"
-                className="animate-pulse"
-              />
-            </svg>
-          )}
-        </div>
-
-        <div className="flex justify-center space-x-4 mb-4">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-            </svg>
-          </div>
-        </div>
-
-        <Button 
-          className={`w-full font-semibold py-3 rounded-xl transition-all duration-300 ${
-            chartState === 'mooning' 
-              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-              : 'bg-gray-700 text-gray-300 cursor-not-allowed'
-          }`}
-          disabled={chartState !== 'mooning'}
+    <div className={`relative w-full max-w-[500px] aspect-square ${className}`}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <motion.div
+          className="relative w-[80%] h-[80%] rounded-2xl bg-gray-900 border border-blue-500/20 shadow-xl shadow-blue-900/10 p-6 flex flex-col gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {chartState === 'mooning' ? 'gm to the moon' : getStateText()}
-        </Button>
+          <div className="flex items-center gap-2">
+            <motion.div
+              className="w-3 h-3 rounded-full bg-red-500"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+            />
+            <motion.div
+              className="w-3 h-3 rounded-full bg-yellow-500"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.6 }}
+            />
+            <motion.div
+              className="w-3 h-3 rounded-full bg-green-500"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.7 }}
+            />
+          </div>
+          <div className="flex-1 flex flex-col gap-4">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`step-${step}`}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="flex-1 flex flex-col gap-4"
+              >
+                {step === 0 && (
+                  <>
+                    <motion.div
+                      className="w-full h-12 rounded-lg bg-gray-800 border border-blue-500/10 flex items-center px-4"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 0.5, delay: 0.1 }}
+                    >
+                      <span className="text-sm font-medium text-gray-300">DRINKS</span>
+                    </motion.div>
+                    <motion.div
+                      className="w-full h-12 rounded-lg bg-gray-800 border border-blue-500/10 flex items-center px-4"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                      <span className="text-sm font-medium text-gray-300">1,000,000,000</span>
+                    </motion.div>
+                    <motion.div
+                      className="w-full h-12 rounded-lg bg-gray-800 border border-blue-500/10 flex items-center px-4"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                      <span className="text-sm font-medium text-gray-300">$DRNKS</span>
+                    </motion.div>
+                  </>
+                )}
+
+                {step === 1 && (
+                  <>
+                    <div className="flex-1 flex items-center justify-center">
+                      <motion.div
+                        initial={{ scale: 0, rotate: -10 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ duration: 0.5, type: "spring" }}
+                        className="w-32 h-32 rounded-full bg-blue-900/30 border border-blue-500/20 flex items-center justify-center"
+                      >
+                        <Coins className="h-16 w-16 text-blue-400" />
+                      </motion.div>
+                    </div>
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="h-2 w-full bg-gray-800 rounded-full overflow-hidden"
+                    >
+                      <motion.div
+                        initial={{ width: "0%" }}
+                        animate={{ width: "70%" }}
+                        transition={{ duration: 1.5, delay: 0.5 }}
+                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
+                      />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3, delay: 0.7 }}
+                      className="text-center text-sm text-gray-400"
+                    >
+                      Adding liquidity...
+                    </motion.div>
+                  </>
+                )}
+
+                {step === 2 && (
+                  <>
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                      <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        className="flex items-center gap-2"
+                      >
+                        <span className="text-lg font-bold text-white">$DRNKS</span>
+                        <span className="text-green-400 font-bold">+1337%</span>
+                      </motion.div>
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="relative w-40 h-24"
+                      >
+                        <svg viewBox="0 0 100 50" className="w-full h-full">
+                          <motion.path
+                            d="M0,50 Q10,40 20,38 T40,32 T60,20 T80,10 T100,0"
+                            fill="none"
+                            stroke="#3b82f6"
+                            strokeWidth="2"
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1 }}
+                            transition={{ duration: 1.5, delay: 0.3 }}
+                          />
+                        </svg>
+                        <motion.div
+                          className="absolute top-0 right-0 w-3 h-3 rounded-full bg-blue-500"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.3, delay: 1.8 }}
+                        />
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3, delay: 1 }}
+                        className="text-center text-sm text-gray-400"
+                      >
+                        To the moon!
+                      </motion.div>
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="flex gap-2">
+              <motion.div
+                className={`w-12 h-12 rounded-lg ${step === 0 ? "bg-blue-600" : "bg-blue-900/30 border border-blue-500/20"} flex items-center justify-center cursor-pointer`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep(0)}
+              >
+                <Rocket className={`h-6 w-6 ${step === 0 ? "text-white" : "text-blue-400"}`} />
+              </motion.div>
+              <motion.div
+                className={`w-12 h-12 rounded-lg ${step === 1 ? "bg-cyan-600" : "bg-cyan-900/30 border border-cyan-500/20"} flex items-center justify-center cursor-pointer`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep(1)}
+              >
+                <Coins className={`h-6 w-6 ${step === 1 ? "text-white" : "text-cyan-400"}`} />
+              </motion.div>
+              <motion.div
+                className={`w-12 h-12 rounded-lg ${step === 2 ? "bg-pink-600" : "bg-pink-900/30 border border-pink-500/20"} flex items-center justify-center cursor-pointer`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep(2)}
+              >
+                <BarChart3 className={`h-6 w-6 ${step === 2 ? "text-white" : "text-pink-400"}`} />
+              </motion.div>
+            </div>
+          </div>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+          >
+            <Button 
+              className={`w-full font-semibold py-3 rounded-xl transition-all duration-300 ${
+                step === 2 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  : 'bg-gray-700 text-gray-300 cursor-not-allowed'
+              }`}
+              disabled={step !== 2}
+            >
+              {step === 2 ? 'gm to the moon' : step === 1 ? 'Adding liquidity...' : 'Creating token...'}
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
