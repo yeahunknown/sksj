@@ -189,7 +189,7 @@ const CreateToken = () => {
                       value={tokenData.name}
                       onChange={(e) => updateTokenData('name', e.target.value)}
                       placeholder="My Awesome Token"
-                      className="mt-2 glass border-white/20"
+                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
                     />
                     {tokenData.name.length > 0 && tokenData.name.length < 2 && (
                       <p className="text-red-400 text-sm mt-1">Minimum 2 characters required</p>
@@ -203,7 +203,7 @@ const CreateToken = () => {
                       value={tokenData.symbol}
                       onChange={(e) => updateTokenData('symbol', e.target.value.toUpperCase())}
                       placeholder="MAT"
-                      className="mt-2 glass border-white/20"
+                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
                       maxLength={8}
                     />
                     {tokenData.symbol.length > 0 && tokenData.symbol.length < 2 && (
@@ -224,7 +224,7 @@ const CreateToken = () => {
                         }
                       }}
                       placeholder="1000000"
-                      className="mt-2 glass border-white/20"
+                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
                     />
                     {tokenData.totalSupply.length > 0 && !/^\d+$/.test(tokenData.totalSupply) && (
                       <p className="text-red-400 text-sm mt-1">Numbers only</p>
@@ -234,10 +234,10 @@ const CreateToken = () => {
                   <div>
                     <Label htmlFor="decimals">Decimals</Label>
                     <Select value={tokenData.decimals} onValueChange={(value) => updateTokenData('decimals', value)}>
-                      <SelectTrigger className="mt-2 glass border-white/20">
+                      <SelectTrigger className="mt-2 bg-gray-800/50 border-gray-600 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="glass border-white/20 bg-gray-900 z-50">
+                      <SelectContent className="bg-gray-800 border-gray-600 text-white z-50">
                         {[...Array(10)].map((_, i) => (
                           <SelectItem key={i} value={i.toString()}>
                             {i} decimals
@@ -299,7 +299,7 @@ const CreateToken = () => {
                       value={tokenData.description}
                       onChange={(e) => updateTokenData('description', e.target.value)}
                       placeholder="Describe your token project..."
-                      className="mt-2 glass border-white/20 min-h-32 resize-none"
+                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500 min-h-32 resize-none"
                     />
                   </div>
                 </div>
