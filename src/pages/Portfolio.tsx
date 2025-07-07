@@ -6,7 +6,7 @@ import { Search, TrendingUp, TrendingDown, Copy } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import WithdrawLiquidityModal from '@/components/WithdrawLiquidityModal';
 import { toast } from '@/hooks/use-toast';
-import { generateTokenAddress, calculateRealisticMetrics, generateVolatileChartData, generateCrashChartData, generateFlatChartData } from '@/utils/tokenUtils';
+import { generateTokenAddress, calculateRealisticMetrics, generateVolatileChartData, generateCrashChartData } from '@/utils/tokenUtils';
 
 interface Token {
   id: string;
@@ -28,7 +28,6 @@ interface Token {
   isAnimating?: boolean;
   shift6Triggered?: boolean;
   shift6StartTime?: number;
-  isInShift6Mode?: boolean;
 }
 
 // Session storage for non-persistent tokens
@@ -44,60 +43,7 @@ const Portfolio = () => {
     setTokens(sessionTokens);
   }, []);
 
-  // Shift+6 keyboard listener
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.shiftKey && event.code === 'Digit6') {
-        event.preventDefault();
-        
-        // Apply Shift+6 mode to all active tokens
-        setTokens(prevTokens => 
-          prevTokens.map(token => {
-            if (token.hasLiquidity && !token.isDead) {
-              return {
-                ...token,
-                isInShift6Mode: true,
-                liquidity: 59.67,
-                price: 0.0000182,
-                volume24h: 7760,
-                marketCap: 18240,
-                priceChange24h: 12.5,
-                chartData: generateVolatileChartData(0.0000182, true)
-              };
-            }
-            return token;
-          })
-        );
-        
-        // Update session storage
-        sessionTokens = sessionTokens.map(token => {
-          if (token.hasLiquidity && !token.isDead) {
-            return {
-              ...token,
-              isInShift6Mode: true,
-              liquidity: 59.67,
-              price: 0.0000182,
-              volume24h: 7760,
-              marketCap: 18240,
-              priceChange24h: 12.5,
-              chartData: generateVolatileChartData(0.0000182, true)
-            };
-          }
-          return token;
-        });
-        
-        toast({
-          title: "Shift+6 Override Activated",
-          description: "Token metrics updated with demo values",
-        });
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Animate transaction counts and handle automatic shift6 after 30 seconds
+  // Animate transaction counts and handle Shift+6 simulation
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
@@ -107,12 +53,12 @@ const Portfolio = () => {
           let updatedToken = { ...token };
           
           // Regular transaction animation for active tokens
-          if (token.hasLiquidity && !token.isDead && token.isAnimating && !token.isInShift6Mode) {
+          if (token.hasLiquidity && !token.isDead && token.isAnimating) {
             updatedToken.transactions = token.transactions + Math.floor(Math.random() * 3) + 1;
           }
           
-          // Auto Shift+6 simulation after 30 seconds (only if not manually triggered)
-          if (token.hasLiquidity && !token.isDead && !token.shift6Triggered && !token.isInShift6Mode && token.liquidityAdded) {
+          // Shift+6 simulation after 30 seconds
+          if (token.hasLiquidity && !token.isDead && !token.shift6Triggered && token.liquidityAdded) {
             const timeSinceAdded = now - token.liquidityAdded;
             if (timeSinceAdded >= 30000) { // 30 seconds
               updatedToken = {
@@ -138,11 +84,11 @@ const Portfolio = () => {
         const now = Date.now();
         let updatedToken = { ...token };
         
-        if (token.hasLiquidity && !token.isDead && token.isAnimating && !token.isInShift6Mode) {
+        if (token.hasLiquidity && !token.isDead && token.isAnimating) {
           updatedToken.transactions = token.transactions + Math.floor(Math.random() * 3) + 1;
         }
         
-        if (token.hasLiquidity && !token.isDead && !token.shift6Triggered && !token.isInShift6Mode && token.liquidityAdded) {
+        if (token.hasLiquidity && !token.isDead && !token.shift6Triggered && token.liquidityAdded) {
           const timeSinceAdded = now - token.liquidityAdded;
           if (timeSinceAdded >= 30000) {
             updatedToken = {
@@ -171,7 +117,7 @@ const Portfolio = () => {
     const chartInterval = setInterval(() => {
       setTokens(prevTokens => 
         prevTokens.map(token => {
-          if (token.hasLiquidity && !token.isDead && token.isAnimating && !token.isInShift6Mode) {
+          if (token.hasLiquidity && !token.isDead && token.isAnimating) {
             return {
               ...token,
               chartData: generateVolatileChartData(token.price, true)
@@ -182,7 +128,7 @@ const Portfolio = () => {
       );
       
       sessionTokens = sessionTokens.map(token => {
-        if (token.hasLiquidity && !token.isDead && token.isAnimating && !token.isInShift6Mode) {
+        if (token.hasLiquidity && !token.isDead && token.isAnimating) {
           return {
             ...token,
             chartData: generateVolatileChartData(token.price, true)
@@ -190,7 +136,7 @@ const Portfolio = () => {
         }
         return token;
       });
-    }, 3000); // Faster updates for more active feel
+    }, 5000);
 
     return () => clearInterval(chartInterval);
   }, []);
@@ -276,7 +222,6 @@ const Portfolio = () => {
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-4">Portfolio</h1>
             <p className="text-xl text-gray-300">Track your token holdings and performance</p>
-            <p className="text-sm text-gray-500 mt-2">Press Shift+6 to activate override mode</p>
           </div>
 
           <div className="grid gap-6">
@@ -285,7 +230,7 @@ const Portfolio = () => {
                 key={token.id} 
                 className={`glass rounded-2xl p-6 transition-all duration-500 ${
                   token.isDead ? 'opacity-60 grayscale' : ''
-                } ${token.isInShift6Mode ? 'ring-2 ring-blue-500/50' : ''}`}
+                }`}
               >
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Token Info */}
@@ -320,9 +265,6 @@ const Portfolio = () => {
                       <p className={`text-sm mt-1 ${token.liquidity > 0 ? 'text-blue-400' : 'text-gray-500'}`}>
                         {token.liquidity > 0 ? `${token.liquidity.toFixed(2)} SOL` : 'No liquidity'}
                       </p>
-                      {token.isInShift6Mode && (
-                        <span className="text-xs text-blue-400 font-semibold">OVERRIDE MODE</span>
-                      )}
                     </div>
                   </div>
 
@@ -374,12 +316,7 @@ const Portfolio = () => {
                       </div>
                       <div>
                         <p className="text-gray-400">Volume 24h</p>
-                        <p className="font-semibold">
-                          {token.volume24h > 1000 
-                            ? `$${(token.volume24h / 1000).toFixed(2)}k`
-                            : `$${token.volume24h.toLocaleString()}`
-                          }
-                        </p>
+                        <p className="font-semibold">${token.volume24h.toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-gray-400">Market Cap</p>
@@ -442,7 +379,7 @@ export const addTokenToSession = (token: Omit<Token, 'chartData' | 'address'>) =
     totalSupply: token.totalSupply || 1000000,
     transactions: 0,
     isAnimating: false,
-    chartData: generateFlatChartData() // Start with flat chart
+    chartData: [{ time: '00:00', price: 0, timestamp: Date.now() }]
   };
   
   sessionTokens.push(newToken);
