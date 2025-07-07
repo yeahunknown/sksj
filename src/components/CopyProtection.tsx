@@ -47,26 +47,6 @@ const CopyProtection = () => {
     document.addEventListener('keydown', handleKeyDown);
     window.addEventListener('beforeprint', handleBeforePrint);
 
-    // Disable developer tools detection
-    let devtools = { open: false, orientation: null };
-    const threshold = 160;
-
-    setInterval(() => {
-      if (
-        window.outerHeight - window.innerHeight > threshold ||
-        window.outerWidth - window.innerWidth > threshold
-      ) {
-        if (!devtools.open) {
-          devtools.open = true;
-          // Redirect or show warning
-          console.clear();
-          document.body.innerHTML = '<div style="background: #000; color: #fff; font-family: monospace; padding: 50px; text-align: center; font-size: 20px;">🚫 Developer Tools Detected<br><br>Please close developer tools to continue.</div>';
-        }
-      } else {
-        devtools.open = false;
-      }
-    }, 500);
-
     // Cleanup
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
