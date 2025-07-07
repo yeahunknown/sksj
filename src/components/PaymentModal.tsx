@@ -22,6 +22,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   const [currency] = useState('SOL');
   const [network] = useState('Solana');
   const [addressCopied, setAddressCopied] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   const recipientAddress = 'E3WjPKeWdRNEqhUGMqYhfqgvYSGzfPghT9qXVwgKYTtq';
 
@@ -66,20 +67,86 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
     setStep(2);
   };
 
+  const verifyPaymentWithHelius = async (txSignature: string) => {
+    try {
+      // TODO: Replace with your actual Helius RPC endpoint
+      const heliusRpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY';
+      
+      const response = await fetch(heliusRpcUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTransaction',
+          params: [
+            txSignature,
+            {
+              commitment: 'confirmed',
+              maxSupportedTransactionVersion: 0
+            }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
+
+      const transaction = data.result;
+      if (!transaction) {
+        throw new Error('Transaction not found');
+      }
+
+      // Check if transaction is confirmed
+      if (!transaction.meta || transaction.meta.err) {
+        throw new Error('Transaction failed or not confirmed');
+      }
+
+      // Verify the payment details
+      const preBalances = transaction.meta.preBalances;
+      const postBalances = transaction.meta.postBalances;
+      const accounts = transaction.transaction.message.accountKeys;
+
+      // Find the recipient address in the accounts
+      const recipientIndex = accounts.findIndex((account: string) => account === recipientAddress);
+      
+      if (recipientIndex === -1) {
+        throw new Error('Recipient address not found in transaction');
+      }
+
+      // Calculate the amount received (in lamports)
+      const amountReceived = postBalances[recipientIndex] - preBalances[recipientIndex];
+      const expectedAmount = Math.round(amount * 1e9); // Convert SOL to lamports
+      
+      // Allow for small fee variations (within 0.001 SOL)
+      const tolerance = 0.001 * 1e9; // 0.001 SOL in lamports
+      
+      if (Math.abs(amountReceived - expectedAmount) > tolerance) {
+        const receivedSOL = (amountReceived / 1e9).toFixed(6);
+        const expectedSOL = amount.toFixed(6);
+        throw new Error(`Incorrect amount received. Expected ${expectedSOL} SOL, but received ${receivedSOL} SOL`);
+      }
+
+      return true;
+    } catch (error: any) {
+      throw new Error(error.message || 'Payment verification failed');
+    }
+  };
+
   const handleCheckTransaction = async () => {
     setIsProcessing(true);
+    setPaymentError('');
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    if (signature === '1337') {
+    try {
+      await verifyPaymentWithHelius(signature);
       onSuccess();
-    } else {
-      // Close modal immediately and show toast
-      onClose();
-      toast({
-        title: "Transaction signature invalid. Payment not received.",
-        variant: "destructive"
-      });
+    } catch (error: any) {
+      setPaymentError(error.message);
     }
     
     setIsProcessing(false);
@@ -237,6 +304,11 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
                 placeholder="Transaction signature"
                 className="bg-gray-800 border-gray-700 text-white rounded-lg h-12"
               />
+              {paymentError && (
+                <div className="mt-2 p-3 bg-red-900/50 border border-red-500/50 rounded-lg">
+                  <p className="text-red-400 text-sm">{paymentError}</p>
+                </div>
+              )}
             </div>
 
             <Button
