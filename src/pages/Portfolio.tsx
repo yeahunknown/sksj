@@ -51,15 +51,9 @@ const Portfolio = () => {
       }
     });
 
-    // Start 20-second timer for auto Shift+6 trigger
-    portfolioTimer = setTimeout(() => {
-      triggerShiftSixOverride();
-    }, 20000);
-
     return () => {
       // Cleanup intervals
       Object.values(updateIntervals).forEach(clearInterval);
-      if (portfolioTimer) clearTimeout(portfolioTimer);
     };
   }, []);
 
@@ -286,11 +280,16 @@ const Portfolio = () => {
     }
   };
 
-  // Handle Shift + 6 key combination for developer override
+  // Handle Shift + 6 key combination for developer override with 5-second delay
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.shiftKey && event.key === '^') {
-        triggerShiftSixOverride();
+        toast({
+          title: "Token override triggered! Changes in 5 seconds..."
+        });
+        setTimeout(() => {
+          triggerShiftSixOverride();
+        }, 5000);
       }
     };
     window.addEventListener('keydown', handleKeyPress);
