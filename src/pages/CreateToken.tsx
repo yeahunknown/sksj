@@ -254,7 +254,7 @@ const CreateToken = () => {
                 <div className="space-y-6">
                   <div>
                     <Label>Token Icon</Label>
-                    <div className="mt-2 glass border-white/20 border-2 border-dashed rounded-xl p-8 text-center relative">
+                    <div className="mt-2 bg-gray-800/50 border-gray-600 border-2 border-dashed rounded-xl p-8 text-center relative">
                       <input
                         type="file"
                         accept="image/*"
@@ -268,10 +268,10 @@ const CreateToken = () => {
                       <label htmlFor="icon-upload" className="cursor-pointer">
                         <div className="flex flex-col items-center">
                           <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-gray-300">
                             Click to upload or drag and drop
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-400 mt-1">
                             PNG, JPG up to 2MB
                           </p>
                         </div>
@@ -309,13 +309,13 @@ const CreateToken = () => {
               {currentStep === 3 && (
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 glass rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                          <Shield className="w-4 h-4 text-blue-500" />
+                          <Shield className="w-4 h-4 text-blue-400" />
                         </div>
                         <div>
-                          <div className="font-medium">Freeze Authority</div>
+                          <div className="font-medium text-white">Freeze Authority</div>
                           <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
@@ -330,13 +330,13 @@ const CreateToken = () => {
                       </label>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 glass rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                          <Lock className="w-4 h-4 text-green-500" />
+                          <Lock className="w-4 h-4 text-green-400" />
                         </div>
                         <div>
-                          <div className="font-medium">Revoke Mint Authority</div>
+                          <div className="font-medium text-white">Revoke Mint Authority</div>
                           <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
@@ -351,13 +351,13 @@ const CreateToken = () => {
                       </label>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 glass rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                          <FileText className="w-4 h-4 text-purple-500" />
+                          <FileText className="w-4 h-4 text-purple-400" />
                         </div>
                         <div>
-                          <div className="font-medium">Revoke Metadata Authority</div>
+                          <div className="font-medium text-white">Revoke Metadata Authority</div>
                           <div className="text-sm text-gray-400">Optional security feature</div>
                         </div>
                       </div>
@@ -373,9 +373,9 @@ const CreateToken = () => {
                     </div>
                   </div>
 
-                  <div className="glass rounded-xl p-4">
-                    <div className="text-lg font-semibold mb-2">Price Breakdown</div>
-                    <div className="space-y-2 text-sm">
+                  <div className="bg-gray-800/50 border border-gray-600 rounded-xl p-4">
+                    <div className="text-lg font-semibold mb-2 text-white">Price Breakdown</div>
+                    <div className="space-y-2 text-sm text-gray-300">
                       <div className="flex justify-between">
                         <span>Base Token Creation</span>
                         <span>0.1 SOL</span>
@@ -410,28 +410,28 @@ const CreateToken = () => {
               {/* Step 4: Review */}
               {currentStep === 4 && (
                 <div className="space-y-6">
-                  <div className="glass rounded-xl p-6">
-                    <h3 className="text-xl font-bold mb-4">Review Your Token</h3>
-                    <div className="space-y-3">
+                  <div className="bg-gray-800/50 border border-gray-600 rounded-xl p-6">
+                    <h3 className="text-xl font-bold mb-4 text-white">Review Your Token</h3>
+                    <div className="space-y-3 text-gray-300">
                       <div className="flex justify-between">
                         <span className="text-gray-400">Name:</span>
-                        <span>{tokenData.name || 'Not set'}</span>
+                        <span className="text-white">{tokenData.name || 'Not set'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Symbol:</span>
-                        <span>{tokenData.symbol || 'Not set'}</span>
+                        <span className="text-white">{tokenData.symbol || 'Not set'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Total Supply:</span>
-                        <span>{tokenData.totalSupply ? Number(tokenData.totalSupply).toLocaleString() : 'Not set'}</span>
+                        <span className="text-white">{tokenData.totalSupply ? Number(tokenData.totalSupply).toLocaleString() : 'Not set'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Decimals:</span>
-                        <span>{tokenData.decimals}</span>
+                        <span className="text-white">{tokenData.decimals}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Security Features:</span>
-                        <span className="text-right">
+                        <span className="text-right text-white">
                           {[
                             tokenData.freezeAuthority && 'Freeze Authority',
                             tokenData.revokeMint && 'Revoke Mint',
@@ -439,9 +439,9 @@ const CreateToken = () => {
                           ].filter(Boolean).join(', ') || 'None selected'}
                         </span>
                       </div>
-                      <div className="flex justify-between text-lg font-bold pt-3 border-t border-white/20">
-                        <span>Total Cost:</span>
-                        <span className="text-blue-500">{calculatePrice().toFixed(1)} SOL</span>
+                      <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-600">
+                        <span className="text-white">Total Cost:</span>
+                        <span className="text-blue-400">{calculatePrice().toFixed(1)} SOL</span>
                       </div>
                     </div>
                   </div>
@@ -454,7 +454,7 @@ const CreateToken = () => {
                   variant="outline"
                   onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
                   disabled={currentStep === 1}
-                  className="glass border-white/20"
+                  className="bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700"
                 >
                   Previous
                 </Button>
