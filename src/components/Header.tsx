@@ -1,9 +1,12 @@
 
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import ContactPopup from './ContactPopup';
 
 const Header = () => {
   const location = useLocation();
+  const [showContactPopup, setShowContactPopup] = useState(false);
 
   const navItems = [
     { name: 'Home', path: '/' },
@@ -43,10 +46,21 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setShowContactPopup(true)}
+              className="glass border-white/20 px-4 py-2 rounded-lg text-white hover:bg-white/10 transition-all duration-300 text-sm font-medium"
+            >
+              Contact
+            </button>
             <ThemeToggle />
           </div>
         </div>
       </div>
+      
+      <ContactPopup 
+        isOpen={showContactPopup} 
+        onClose={() => setShowContactPopup(false)} 
+      />
     </header>
   );
 };

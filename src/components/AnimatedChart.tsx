@@ -5,11 +5,14 @@ interface AnimatedChartProps {
   className?: string;
 }
 
+type ChartState = 'loading' | 'adding-liquidity' | 'mooning';
+
 const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
   const [points, setPoints] = useState<string>('');
+  const [chartState, setChartState] = useState<ChartState>('loading');
 
   useEffect(() => {
-    const generatePath = () => {
+    const generatePath = (state: ChartState) => {
       const width = 300;
       const height = 150;
       const steps = 20;
@@ -18,9 +21,17 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
       
       for (let i = 1; i <= steps; i++) {
         const x = (width / steps) * i;
-        const baseY = height - (i * 4); // Rising trend
-        const variance = Math.sin(i * 0.8) * 15 + Math.random() * 10;
-        const y = Math.max(10, Math.min(height - 10, baseY + variance));
+        let y = height - 20; // Default flat line
+        
+        if (state === 'adding-liquidity') {
+          const baseY = height - 40 - (i * 2); // Slight upward trend
+          const variance = Math.sin(i * 0.5) * 8;
+          y = Math.max(20, Math.min(height - 20, baseY + variance));
+        } else if (state === 'mooning') {
+          const baseY = height - (i * 6); // Sharp upward trend
+          const variance = Math.sin(i * 0.8) * 10 + Math.random() * 8;
+          y = Math.max(10, Math.min(height - 10, baseY + variance));
+        }
         
         if (i === 1) {
           path += ` L ${x} ${y}`;
@@ -35,15 +46,50 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
       return path;
     };
 
-    const updatePath = () => {
-      setPoints(generatePath());
+    const updateChart = () => {
+      setPoints(generatePath(chartState));
     };
 
-    updatePath();
-    const interval = setInterval(updatePath, 3000);
+    updateChart();
+    
+    // State progression
+    const stateTimer = setTimeout(() => {
+      if (chartState === 'loading') {
+        setChartState('adding-liquidity');
+      } else if (chartState === 'adding-liquidity') {
+        setChartState('mooning');
+      }
+    }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+    const pathTimer = setInterval(updateChart, 1500);
+
+    return () => {
+      clearTimeout(stateTimer);
+      clearInterval(pathTimer);
+    };
+  }, [chartState]);
+
+  const getStateText = () => {
+    switch (chartState) {
+      case 'loading':
+        return 'Loading...';
+      case 'adding-liquidity':
+        return 'Adding liquidity...';
+      case 'mooning':
+        return 'To the moon! 🚀';
+    }
+  };
+
+  const getPercentage = () => {
+    switch (chartState) {
+      case 'loading':
+        return '';
+      case 'adding-liquidity':
+        return '+42%';
+      case 'mooning':
+        return '+1337%';
+    }
+  };
 
   return (
     <div className={`relative ${className}`}>
@@ -54,12 +100,19 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
-          <div className="text-green-400 font-mono text-lg">+1337%</div>
+          <div className={`font-mono text-lg transition-all duration-500 ${
+            chartState === 'mooning' ? 'text-green-400' : 
+            chartState === 'adding-liquidity' ? 'text-blue-400' : 'text-gray-400'
+          }`}>
+            {getPercentage()}
+          </div>
         </div>
         
         <div className="mb-4">
           <div className="text-2xl font-bold text-white mb-1">$OMNI</div>
-          <div className="text-sm text-gray-400">To the moon! 🚀</div>
+          <div className="text-sm text-gray-400 transition-all duration-500">
+            {getStateText()}
+          </div>
         </div>
 
         <div className="relative h-32 mb-4">
@@ -106,8 +159,15 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
           </div>
         </div>
 
-        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300">
-          gm to the moon
+        <Button 
+          className={`w-full font-semibold py-3 rounded-xl transition-all duration-300 ${
+            chartState === 'mooning' 
+              ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+              : 'bg-gray-700 text-gray-300 cursor-not-allowed'
+          }`}
+          disabled={chartState !== 'mooning'}
+        >
+          {chartState === 'mooning' ? 'gm to the moon' : getStateText()}
         </Button>
       </div>
     </div>
