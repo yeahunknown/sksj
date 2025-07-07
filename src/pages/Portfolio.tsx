@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -372,17 +371,16 @@ const Portfolio = () => {
 };
 
 // Export function to add tokens from other components
-export const addTokenToSession = (token: Omit<Token, 'chartData' | 'address'>) => {
+export const addTokenToSession = (tokenData: Omit<Token, 'chartData'>) => {
+  const sessionTokens = JSON.parse(sessionStorage.getItem('sessionTokens') || '[]');
+  
   const newToken: Token = {
-    ...token,
-    address: generateTokenAddress(),
-    totalSupply: token.totalSupply || 1000000,
-    transactions: 0,
-    isAnimating: false,
-    chartData: [{ time: '00:00', price: 0, timestamp: Date.now() }]
+    ...tokenData,
+    chartData: generateVolatileChartData(tokenData.price || 0.000001, tokenData.hasLiquidity)
   };
   
-  sessionTokens.push(newToken);
+  const updatedTokens = [...sessionTokens, newToken];
+  sessionStorage.setItem('sessionTokens', JSON.stringify(updatedTokens));
 };
 
 // Export function to update token with liquidity
