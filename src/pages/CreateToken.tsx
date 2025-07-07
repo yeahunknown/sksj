@@ -267,7 +267,12 @@ const CreateToken = () => {
                       />
                       <label htmlFor="icon-upload" className="cursor-pointer">
                         <div className="flex flex-col items-center">
-                          <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                          <div className="relative mb-3">
+                            <svg className="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                            </svg>
+                            <Upload className="w-4 h-4 text-blue-400 absolute -bottom-1 -right-1 bg-gray-800 rounded-full p-1" />
+                          </div>
                           <p className="text-sm text-gray-300">
                             Click to upload or drag and drop
                           </p>

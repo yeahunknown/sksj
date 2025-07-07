@@ -133,7 +133,7 @@ const AnimatedChart = ({ className = "" }: AnimatedChartProps) => {
                         className="flex items-center gap-2"
                       >
                         <span className="text-lg font-bold text-white">$MOON</span>
-                        <span className="text-green-400 font-bold">+1337%</span>
+                        <span className="text-green-400 font-bold">+3482%</span>
                       </motion.div>
                       <motion.div
                         initial={{ scale: 0 }}
