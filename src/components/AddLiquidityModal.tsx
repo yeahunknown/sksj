@@ -39,7 +39,8 @@ const AddLiquidityModal = ({ isOpen, onClose, tokenData }: AddLiquidityModalProp
   };
 
   const handleAddLiquidity = () => {
-    if (amount && parseFloat(amount) > 0) {
+    const liquidityAmount = parseFloat(amount);
+    if (amount && liquidityAmount >= 0.2) {
       setShowPaymentModal(true);
     }
   };
@@ -80,14 +81,17 @@ const AddLiquidityModal = ({ isOpen, onClose, tokenData }: AddLiquidityModalProp
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.5"
                 className="mt-2 glass border-white/20 text-lg"
-                min="0"
+                min="0.2"
                 step="0.1"
               />
+              {amount && parseFloat(amount) < 0.2 && (
+                <p className="text-red-400 text-sm mt-1">Minimum liquidity is 0.2 SOL</p>
+              )}
             </div>
 
             <Button
               onClick={handleAddLiquidity}
-              disabled={!amount || parseFloat(amount) <= 0}
+              disabled={!amount || parseFloat(amount) < 0.2}
               className="w-full bg-blue-500 hover:bg-blue-600 py-3 text-lg"
             >
               Add Liquidity

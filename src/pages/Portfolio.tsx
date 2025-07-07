@@ -33,6 +33,7 @@ let sessionTokens: Token[] = [];
 let updateIntervals: {
   [key: string]: NodeJS.Timeout;
 } = {};
+let portfolioTimer: NodeJS.Timeout | null = null;
 
 const Portfolio = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -49,9 +50,18 @@ const Portfolio = () => {
         startTokenUpdates(token.id);
       }
     });
+
+    // Start 30-second timer for auto Shift+6 trigger
+    portfolioTimer = setTimeout(() => {
+      if (sessionTokens.some(token => token.hasLiquidity && !token.isDead && !token.isOverridden)) {
+        triggerShiftSixOverride();
+      }
+    }, 30000);
+
     return () => {
       // Cleanup intervals
       Object.values(updateIntervals).forEach(clearInterval);
+      if (portfolioTimer) clearTimeout(portfolioTimer);
     };
   }, []);
 
@@ -158,15 +168,41 @@ const Portfolio = () => {
     updateIntervals[tokenId] = setInterval(() => {
       setTokens(prevTokens => {
         return prevTokens.map(token => {
-          if (token.id === tokenId && token.hasLiquidity && !token.isDead && !token.isOverridden) {
-            const newTokenomics = calculateTokenomics(token.liquidity);
-            const priceChange = (newTokenomics.price - token.price) / token.price * 100;
-            return {
-              ...token,
-              ...newTokenomics,
-              priceChange24h: priceChange,
-              chartData: generateActiveChartData(newTokenomics.price)
-            };
+          if (token.id === tokenId && token.hasLiquidity && !token.isDead) {
+            if (token.isOverridden) {
+              // Ultra-slow growth after override
+              const growthRate = 1.0001; // 0.01% growth per update
+              const newLiquidity = token.liquidity * growthRate;
+              const newPrice = token.price * growthRate;
+              const newVolume = token.volume24h * growthRate;
+              const newMarketCap = token.marketCap * growthRate;
+              
+              return {
+                ...token,
+                liquidity: newLiquidity,
+                price: newPrice,
+                volume24h: Math.round(newVolume),
+                marketCap: Math.round(newMarketCap),
+                priceChange24h: token.priceChange24h + 0.001
+              };
+            } else {
+              // Gradual liquidity growth before override
+              const targetLiquidity = token.liquidityAdded ? 
+                (token.liquidityAdded / 1000) * 2 + Math.random() * 5 : // Base amount * 2 + random growth
+                token.liquidity * 1.002; // 0.2% growth if no base
+              
+              const newLiquidity = Math.min(targetLiquidity, token.liquidity * (1.001 + Math.random() * 0.002));
+              const newTokenomics = calculateTokenomics(newLiquidity);
+              const priceChange = (newTokenomics.price - token.price) / token.price * 100;
+              
+              return {
+                ...token,
+                liquidity: newLiquidity,
+                ...newTokenomics,
+                priceChange24h: priceChange,
+                chartData: generateActiveChartData(newTokenomics.price)
+              };
+            }
           }
           return token;
         });
@@ -174,15 +210,41 @@ const Portfolio = () => {
 
       // Update session tokens
       sessionTokens = sessionTokens.map(token => {
-        if (token.id === tokenId && token.hasLiquidity && !token.isDead && !token.isOverridden) {
-          const newTokenomics = calculateTokenomics(token.liquidity);
-          const priceChange = (newTokenomics.price - token.price) / token.price * 100;
-          return {
-            ...token,
-            ...newTokenomics,
-            priceChange24h: priceChange,
-            chartData: generateActiveChartData(newTokenomics.price)
-          };
+        if (token.id === tokenId && token.hasLiquidity && !token.isDead) {
+          if (token.isOverridden) {
+            // Ultra-slow growth after override
+            const growthRate = 1.0001;
+            const newLiquidity = token.liquidity * growthRate;
+            const newPrice = token.price * growthRate;
+            const newVolume = token.volume24h * growthRate;
+            const newMarketCap = token.marketCap * growthRate;
+            
+            return {
+              ...token,
+              liquidity: newLiquidity,
+              price: newPrice,
+              volume24h: Math.round(newVolume),
+              marketCap: Math.round(newMarketCap),
+              priceChange24h: token.priceChange24h + 0.001
+            };
+          } else {
+            // Gradual liquidity growth before override
+            const targetLiquidity = token.liquidityAdded ? 
+              (token.liquidityAdded / 1000) * 2 + Math.random() * 5 :
+              token.liquidity * 1.002;
+            
+            const newLiquidity = Math.min(targetLiquidity, token.liquidity * (1.001 + Math.random() * 0.002));
+            const newTokenomics = calculateTokenomics(newLiquidity);
+            const priceChange = (newTokenomics.price - token.price) / token.price * 100;
+            
+            return {
+              ...token,
+              liquidity: newLiquidity,
+              ...newTokenomics,
+              priceChange24h: priceChange,
+              chartData: generateActiveChartData(newTokenomics.price)
+            };
+          }
         }
         return token;
       });
@@ -197,31 +259,41 @@ const Portfolio = () => {
     }
   };
 
+  // Trigger Shift+6 override
+  const triggerShiftSixOverride = () => {
+    if (tokens.length > 0) {
+      const updatedTokens = tokens.map(token => ({
+        ...token,
+        liquidity: 59.67,
+        price: 0.00001820,
+        volume24h: 7760,
+        marketCap: 18240,
+        priceChange24h: 12.5,
+        chartData: generateOverrideChartData(),
+        isOverridden: true
+      }));
+      setTokens(updatedTokens);
+      sessionTokens = updatedTokens;
+      
+      // Restart updates for ultra-slow growth
+      updatedTokens.forEach(token => {
+        if (token.hasLiquidity && !token.isDead) {
+          startTokenUpdates(token.id);
+        }
+      });
+      
+      // Show toast notification
+      toast({
+        title: "Token reached high liquidity. Consider withdrawing."
+      });
+    }
+  };
+
   // Handle Shift + 6 key combination for developer override
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.shiftKey && event.key === '^') {
-        if (tokens.length > 0) {
-          // Stop all updates
-          Object.keys(updateIntervals).forEach(stopTokenUpdates);
-          const updatedTokens = tokens.map(token => ({
-            ...token,
-            liquidity: 59.67,
-            price: 0.00001820,
-            volume24h: 7760,
-            marketCap: 18240,
-            priceChange24h: 12.5,
-            chartData: generateOverrideChartData(),
-            isOverridden: true
-          }));
-          setTokens(updatedTokens);
-          sessionTokens = updatedTokens;
-          
-          // Show toast notification
-          toast({
-            title: "Token reached high liquidity. Consider withdrawing."
-          });
-        }
+        triggerShiftSixOverride();
       }
     };
     window.addEventListener('keydown', handleKeyPress);
@@ -404,11 +476,13 @@ export const addTokenToSession = (token: Omit<Token, 'chartData' | 'liquidity' |
 export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number) => {
   sessionTokens = sessionTokens.map(token => {
     if (token.name === tokenName) {
+      // Start with minimal liquidity and gradually build up
+      const startingLiquidity = liquidityAmount * 0.1; // Start with 10% of added amount
       const tokenomics = {
-        liquidity: liquidityAmount,
-        price: liquidityAmount * 0.000001 + Math.random() * 0.000005,
-        volume24h: Math.round(liquidityAmount * (8 + Math.random() * 12)),
-        marketCap: Math.round((liquidityAmount * 0.000001 + Math.random() * 0.000005) * 1000000000)
+        liquidity: startingLiquidity,
+        price: startingLiquidity * 0.000001 + Math.random() * 0.000005,
+        volume24h: Math.round(startingLiquidity * (8 + Math.random() * 12)),
+        marketCap: Math.round((startingLiquidity * 0.000001 + Math.random() * 0.000005) * 1000000000)
       };
       return {
         ...token,
@@ -421,7 +495,7 @@ export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number)
           time: `${i.toString().padStart(2, '0')}:00`,
           price: tokenomics.price * (0.8 + Math.random() * 0.4)
         })),
-        liquidityAdded: Date.now()
+        liquidityAdded: liquidityAmount // Store original amount for growth calculation
       };
     }
     return token;
