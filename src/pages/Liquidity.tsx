@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,7 @@ const Liquidity = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lpSizeError, setLpSizeError] = useState('');
+  const [addressError, setAddressError] = useState('');
 
   // Load last created token data only if token exists
   useEffect(() => {
@@ -39,6 +39,16 @@ const Liquidity = () => {
 
   const updateFormData = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Validate token address
+    if (field === 'tokenAddress') {
+      const address = value as string;
+      if (address && (address.length !== 44 || !address.endsWith('omni'))) {
+        setAddressError('Token address must be exactly 44 characters and end with "omni"');
+      } else {
+        setAddressError('');
+      }
+    }
     
     // Validate LP Size
     if (field === 'lpSize') {
@@ -76,7 +86,7 @@ const Liquidity = () => {
   }, [formData.lpSize, formData.boostVisibility, lpSizeError]);
 
   const isFormValid = formData.tokenAddress && formData.tokenName && formData.tokenSymbol && 
-                     formData.addSupply && formData.lpSize && !lpSizeError;
+                     formData.addSupply && formData.lpSize && !lpSizeError && !addressError;
 
   const handleAddLiquidity = () => {
     // Check if token was created
@@ -128,9 +138,13 @@ const Liquidity = () => {
                   id="tokenAddress"
                   value={formData.tokenAddress}
                   onChange={(e) => updateFormData('tokenAddress', e.target.value)}
-                  placeholder="Enter token contract address"
-                  className="mt-2 glass border-white/20"
+                  placeholder="Enter 44-character token address ending with 'omni'"
+                  className={`mt-2 glass border-white/20 ${addressError ? 'border-red-500' : ''}`}
                 />
+                {addressError && (
+                  <p className="text-red-400 text-sm mt-1">{addressError}</p>
+                )}
+                <p className="text-gray-400 text-xs mt-1">Must be exactly 44 characters and end with "omni"</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

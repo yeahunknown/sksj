@@ -5,6 +5,7 @@ import { Search, TrendingUp, TrendingDown, Copy } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import WithdrawLiquidityModal from '@/components/WithdrawLiquidityModal';
 import { toast } from '@/hooks/use-toast';
+
 interface Token {
   id: string;
   name: string;
@@ -31,6 +32,7 @@ let sessionTokens: Token[] = [];
 let updateIntervals: {
   [key: string]: NodeJS.Timeout;
 } = {};
+
 const Portfolio = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
@@ -194,7 +196,7 @@ const Portfolio = () => {
     }
   };
 
-  // Handle Shift + 6 key combination for developer override
+  // Handle Shift + 6 key combination for developer override (NO NOTIFICATIONS)
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.shiftKey && event.key === '^') {
@@ -213,20 +215,19 @@ const Portfolio = () => {
           }));
           setTokens(updatedTokens);
           sessionTokens = updatedTokens;
-          toast({
-            title: "Developer Override Activated",
-            description: "All tokens locked to demo values"
-          });
+          // NO TOAST OR NOTIFICATION
         }
       }
     };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [tokens]);
+
   const handleWithdrawLiquidity = (token: Token) => {
     setSelectedToken(token);
     setShowWithdrawModal(true);
   };
+
   const handleWithdrawSuccess = (tokenId: string) => {
     // Stop updates for this token
     stopTokenUpdates(tokenId);
@@ -249,6 +250,7 @@ const Portfolio = () => {
     setTokens(updatedTokens);
     sessionTokens = updatedTokens;
   };
+
   const copyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
     toast({
@@ -274,6 +276,7 @@ const Portfolio = () => {
         </div>
       </Layout>;
   }
+
   return <Layout>
       <div className="min-h-screen py-8">
         <div className="max-w-6xl mx-auto px-4">
@@ -422,4 +425,5 @@ export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number)
     return token;
   });
 };
+
 export default Portfolio;

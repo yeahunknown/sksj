@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -28,14 +27,15 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   
-  // Generate a random Solana token address
+  // Generate a 40-character token address ending with "omni"
   const generateTokenAddress = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
-    for (let i = 0; i < 44; i++) {
+    // Generate 36 random characters, then append "omni" for total of 40
+    for (let i = 0; i < 36; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return result;
+    return result + 'omni';
   };
 
   const [tokenAddress] = useState(generateTokenAddress());

@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Clock, AlertTriangle } from 'lucide-react';
+import { Copy, Clock, AlertTriangle, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -21,6 +21,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [currency] = useState('SOL');
   const [network] = useState('Solana');
+  const [addressCopied, setAddressCopied] = useState(false);
 
   const recipientAddress = 'E3WjPKeWdRNEqhUGMqYhfqgvYSGzfPghT9qXVwgKYTtq';
 
@@ -54,6 +55,8 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(recipientAddress);
+      setAddressCopied(true);
+      setTimeout(() => setAddressCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy to clipboard');
     }
@@ -71,7 +74,12 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
     if (signature === '1337') {
       onSuccess();
     } else {
-      alert('Invalid transaction signature. Please try again.');
+      // Close modal immediately and show toast
+      onClose();
+      toast({
+        title: "Transaction signature invalid. Payment not received.",
+        variant: "destructive"
+      });
     }
     
     setIsProcessing(false);
@@ -215,7 +223,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccess, amount, type }: PaymentModal
                   onClick={copyToClipboard}
                   className="text-gray-400 hover:text-white p-1"
                 >
-                  <Copy className="w-4 h-4" />
+                  {addressCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 </Button>
               </div>
             </div>
