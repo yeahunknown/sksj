@@ -130,7 +130,7 @@ const Liquidity = () => {
             <p className="text-xl text-muted-foreground">Provide liquidity for your token on DEX</p>
           </div>
 
-          <div className="glass rounded-2xl p-8">
+          <div className="bg-card/50 backdrop-blur-xl border border-border rounded-2xl p-8">
             <div className="space-y-6">
               <div>
                 <Label htmlFor="tokenAddress">Token Address</Label>
@@ -202,7 +202,7 @@ const Liquidity = () => {
                 <p className="text-muted-foreground text-xs mt-1">Minimum: 0.3 SOL | Maximum: 100 SOL</p>
               </div>
 
-              <div className="glass rounded-xl p-4">
+              <div className="bg-card border border-border rounded-xl p-4">
                 <div className="flex items-center space-x-3">
                   <Checkbox
                     id="boostVisibility"
@@ -225,7 +225,7 @@ const Liquidity = () => {
               </div>
 
               {totalCost > 0 && (
-                <div className="glass rounded-xl p-4">
+                <div className="bg-card border border-border rounded-xl p-4">
                   <div className="text-lg font-semibold mb-2">Price Breakdown</div>
                   <div className="space-y-2 text-sm">
                     {formData.lpSize && !lpSizeError && (
