@@ -98,11 +98,14 @@ const CreateToken = () => {
     setImageUploading(true);
     updateTokenData('image', file);
     
-    setTimeout(() => {
-      const imageUrl = URL.createObjectURL(file);
-      updateTokenData('imageUrl', imageUrl);
+    // Convert to base64 for persistent storage
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      updateTokenData('imageUrl', base64);
       setImageUploading(false);
-    }, 1300);
+    };
+    reader.readAsDataURL(file);
   };
 
   const calculatePrice = () => {
@@ -212,7 +215,8 @@ const CreateToken = () => {
                       value={tokenData.name}
                       onChange={(e) => updateTokenData('name', e.target.value)}
                       placeholder="My Awesome Token"
-                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                      className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
+                      maxLength={25}
                     />
                     {tokenData.name.length > 0 && tokenData.name.length < 2 && (
                       <p className="text-red-400 text-sm mt-1">Minimum 2 characters required</p>
@@ -226,7 +230,7 @@ const CreateToken = () => {
                       value={tokenData.symbol}
                       onChange={(e) => updateTokenData('symbol', e.target.value.toUpperCase())}
                       placeholder="MAT"
-                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                      className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                       maxLength={8}
                     />
                     {tokenData.symbol.length > 0 && tokenData.symbol.length < 2 && (
@@ -242,12 +246,14 @@ const CreateToken = () => {
                       value={tokenData.totalSupply}
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value === '' || /^\d+$/.test(value)) {
-                          updateTokenData('totalSupply', value);
+                        if (value === '' || /^[\d.]+$/.test(value)) {
+                          if (value.length <= 18) {
+                            updateTokenData('totalSupply', value);
+                          }
                         }
                       }}
                       placeholder="1000000"
-                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                      className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                     />
                     {tokenData.totalSupply.length > 0 && !/^\d+$/.test(tokenData.totalSupply) && (
                       <p className="text-red-400 text-sm mt-1">Numbers only</p>
@@ -257,10 +263,10 @@ const CreateToken = () => {
                   <div>
                     <Label htmlFor="decimals">Decimals</Label>
                     <Select value={tokenData.decimals} onValueChange={(value) => updateTokenData('decimals', value)}>
-                      <SelectTrigger className="mt-2 bg-gray-800/50 border-gray-600 text-white">
+                      <SelectTrigger className="mt-2 bg-card border-border text-card-foreground">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-600 text-white z-50">
+                      <SelectContent className="bg-popover border-border text-popover-foreground z-50">
                         {[...Array(10)].map((_, i) => (
                           <SelectItem key={i} value={i.toString()}>
                             {i} decimals
@@ -277,7 +283,7 @@ const CreateToken = () => {
                 <div className="space-y-6">
                   <div>
                     <Label>Token Icon</Label>
-                    <div className="mt-2 bg-gray-800/50 border-gray-600 border-2 border-dashed rounded-xl p-8 text-center relative">
+                    <div className="mt-2 bg-card border-border border-2 border-dashed rounded-xl p-8 text-center relative">
                       <input
                         type="file"
                         accept="image/*"
@@ -327,11 +333,12 @@ const CreateToken = () => {
                       value={tokenData.description}
                       onChange={(e) => updateTokenData('description', e.target.value)}
                       placeholder="Describe your token project..."
-                      className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500 min-h-32 resize-none"
+                      className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary min-h-32 resize-none"
+                      maxLength={500}
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
                         <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -339,11 +346,11 @@ const CreateToken = () => {
                         </svg>
                       </div>
                       <div>
-                        <div className="font-medium text-white flex items-center gap-2">
+                        <div className="font-medium text-card-foreground flex items-center gap-2">
                           Social Tags
                           <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
                         </div>
-                        <div className="text-sm text-gray-400">Add social links and creator info</div>
+                        <div className="text-sm text-muted-foreground">Add social links and creator info</div>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -358,7 +365,7 @@ const CreateToken = () => {
                   </div>
 
                   {tokenData.socialTags && (
-                    <div className="space-y-4 p-4 bg-gray-800/30 border border-gray-600 rounded-xl">
+                    <div className="space-y-4 p-4 bg-card/50 border border-border rounded-xl">
                       <div>
                         <Label htmlFor="telegram">Telegram</Label>
                         <Input
@@ -366,7 +373,7 @@ const CreateToken = () => {
                           value={tokenData.telegram}
                           onChange={(e) => updateTokenData('telegram', e.target.value)}
                           placeholder="@yourtelegram"
-                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                          className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                         />
                       </div>
                       <div>
@@ -376,7 +383,7 @@ const CreateToken = () => {
                           value={tokenData.website}
                           onChange={(e) => updateTokenData('website', e.target.value)}
                           placeholder="https://yourwebsite.com"
-                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                          className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                         />
                       </div>
                       <div>
@@ -386,7 +393,7 @@ const CreateToken = () => {
                           value={tokenData.twitter}
                           onChange={(e) => updateTokenData('twitter', e.target.value)}
                           placeholder="@yourtwitter"
-                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                          className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                         />
                       </div>
                       <div>
@@ -396,7 +403,7 @@ const CreateToken = () => {
                           value={tokenData.creatorName}
                           onChange={(e) => updateTokenData('creatorName', e.target.value)}
                           placeholder="Your name or team name"
-                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                          className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                         />
                       </div>
                     </div>
@@ -412,17 +419,17 @@ const CreateToken = () => {
                     <div className="text-gray-400 text-sm">Total Cost</div>
                   </div>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
                           <Shield className="w-4 h-4 text-blue-400" />
                         </div>
                         <div>
-                          <div className="font-medium text-white flex items-center gap-2">
+                          <div className="font-medium text-card-foreground flex items-center gap-2">
                             Freeze Authority
                             <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
                           </div>
-                          <div className="text-sm text-gray-400">Optional security feature</div>
+                          <div className="text-sm text-muted-foreground">Optional security feature</div>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -436,17 +443,17 @@ const CreateToken = () => {
                       </label>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
                           <Lock className="w-4 h-4 text-green-400" />
                         </div>
                         <div>
-                          <div className="font-medium text-white flex items-center gap-2">
+                          <div className="font-medium text-card-foreground flex items-center gap-2">
                             Revoke Mint Authority
                             <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
                           </div>
-                          <div className="text-sm text-gray-400">Optional security feature</div>
+                          <div className="text-sm text-muted-foreground">Optional security feature</div>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -460,17 +467,17 @@ const CreateToken = () => {
                       </label>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
                           <FileText className="w-4 h-4 text-purple-400" />
                         </div>
                         <div>
-                          <div className="font-medium text-white flex items-center gap-2">
+                          <div className="font-medium text-card-foreground flex items-center gap-2">
                             Revoke Metadata Authority
                             <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">+0.1 SOL</span>
                           </div>
-                          <div className="text-sm text-gray-400">Optional security feature</div>
+                          <div className="text-sm text-muted-foreground">Optional security feature</div>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -484,7 +491,7 @@ const CreateToken = () => {
                       </label>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-600 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
                           <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
@@ -492,11 +499,11 @@ const CreateToken = () => {
                           </svg>
                         </div>
                         <div>
-                          <div className="font-medium text-white flex items-center gap-2">
+                          <div className="font-medium text-card-foreground flex items-center gap-2">
                             Custom Creator Address
                             <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded">+0.15 SOL</span>
                           </div>
-                          <div className="text-sm text-gray-400">Customize who created the token</div>
+                          <div className="text-sm text-muted-foreground">Customize who created the token</div>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -511,22 +518,22 @@ const CreateToken = () => {
                     </div>
 
                     {tokenData.customCreatorAddress && (
-                      <div className="p-4 bg-gray-800/30 border border-gray-600 rounded-xl">
+                      <div className="p-4 bg-card/50 border border-border rounded-xl">
                         <Label htmlFor="creatorAddress">Creator Address</Label>
                         <Input
                           id="creatorAddress"
                           value={tokenData.creatorAddress}
                           onChange={(e) => updateTokenData('creatorAddress', e.target.value)}
                           placeholder="Enter Solana wallet address"
-                          className="mt-2 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                          className="mt-2 bg-card border-border text-card-foreground placeholder:text-muted-foreground focus:border-primary"
                         />
                       </div>
                     )}
                   </div>
 
-                  <div className="bg-gray-800/50 border border-gray-600 rounded-xl p-4">
-                    <div className="text-lg font-semibold mb-2 text-white">Price Breakdown</div>
-                    <div className="space-y-2 text-sm text-gray-300">
+                  <div className="bg-card border border-border rounded-xl p-4">
+                    <div className="text-lg font-semibold mb-2 text-card-foreground">Price Breakdown</div>
+                    <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex justify-between">
                         <span>Base Token Creation</span>
                         <span>0.1 SOL</span>
@@ -567,28 +574,28 @@ const CreateToken = () => {
               {/* Step 4: Review */}
               {currentStep === 4 && (
                 <div className="space-y-6">
-                  <div className="bg-gray-800/50 border border-gray-600 rounded-xl p-6">
-                    <h3 className="text-xl font-bold mb-4 text-white">Review Your Token</h3>
-                    <div className="space-y-3 text-gray-300">
+                  <div className="bg-card border border-border rounded-xl p-6">
+                    <h3 className="text-xl font-bold mb-4 text-card-foreground">Review Your Token</h3>
+                    <div className="space-y-3 text-muted-foreground">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Name:</span>
-                        <span className="text-white">{tokenData.name || 'Not set'}</span>
+                        <span className="text-muted-foreground">Name:</span>
+                        <span className="text-card-foreground">{tokenData.name || 'Not set'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Symbol:</span>
-                        <span className="text-white">{tokenData.symbol || 'Not set'}</span>
+                        <span className="text-muted-foreground">Symbol:</span>
+                        <span className="text-card-foreground">{tokenData.symbol || 'Not set'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Total Supply:</span>
-                        <span className="text-white">{tokenData.totalSupply ? Number(tokenData.totalSupply).toLocaleString() : 'Not set'}</span>
+                        <span className="text-muted-foreground">Total Supply:</span>
+                        <span className="text-card-foreground">{tokenData.totalSupply ? Number(tokenData.totalSupply).toLocaleString() : 'Not set'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Decimals:</span>
-                        <span className="text-white">{tokenData.decimals}</span>
+                        <span className="text-muted-foreground">Decimals:</span>
+                        <span className="text-card-foreground">{tokenData.decimals}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Security Features:</span>
-                        <span className="text-right text-white">
+                        <span className="text-muted-foreground">Security Features:</span>
+                        <span className="text-right text-card-foreground">
                           {[
                             tokenData.freezeAuthority && 'Freeze Authority',
                             tokenData.revokeMint && 'Revoke Mint',
@@ -596,8 +603,8 @@ const CreateToken = () => {
                           ].filter(Boolean).join(', ') || 'None selected'}
                         </span>
                       </div>
-                      <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-600">
-                        <span className="text-white">Total Cost:</span>
+                      <div className="flex justify-between text-lg font-bold pt-3 border-t border-border">
+                        <span className="text-card-foreground">Total Cost:</span>
                         <span className="text-blue-400">{calculatePrice().toFixed(1)} SOL</span>
                       </div>
                     </div>
@@ -611,7 +618,7 @@ const CreateToken = () => {
                   variant="outline"
                   onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
                   disabled={currentStep === 1}
-                  className="bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700"
+                  className="bg-card border-border text-card-foreground hover:bg-accent"
                 >
                   Previous
                 </Button>
@@ -620,14 +627,14 @@ const CreateToken = () => {
                   <Button
                     onClick={() => setCurrentStep(Math.min(4, currentStep + 1))}
                     disabled={currentStep === 1 && !isStep1Valid()}
-                    className="bg-blue-500 hover:bg-blue-600"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     Next
                   </Button>
                 ) : (
                   <Button
                     onClick={() => setShowPaymentModal(true)}
-                    className="bg-blue-500 hover:bg-blue-600"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     Create Token
                   </Button>

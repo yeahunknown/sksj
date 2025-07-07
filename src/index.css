@@ -47,35 +47,35 @@
   }
 
   .light {
-    --background: 0 0% 100%;
+    --background: 250 50% 98%;
     --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 100%;
+    --card: 0 0% 98%;
     --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 0 0% 100%;
+    --popover: 0 0% 98%;
     --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
     --ring: 217.2 91.2% 59.8%;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 0 0% 97%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
@@ -310,9 +310,10 @@ header button svg {
 
   /* Enhanced glass effect */
   .light .glass {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
   }
 
   /* Theme toggle smooth transitions */
@@ -353,36 +354,51 @@ header button svg {
   background: rgba(59, 130, 246, 0.6);
 }
 
-/* Improved contrast for light mode */
+/* Improved Apple-style light mode */
 .light {
-  color: #1f2937;
+  color: hsl(var(--foreground));
 }
 
-.light .glass {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+/* Button styling for light mode */
+.light button:not(.contact-button) {
+  border-color: hsl(var(--border));
 }
 
+.light button:not(.contact-button):hover {
+  background-color: hsl(var(--accent));
+}
+
+/* Better text contrast in light mode */
 .light .text-gray-400 {
-  color: #6b7280;
+  color: hsl(var(--muted-foreground));
 }
 
 .light .text-gray-300 {
-  color: #4b5563;
+  color: hsl(var(--card-foreground));
 }
 
+/* Soft backgrounds for light mode */
 .light .bg-gray-900 {
-  background-color: #f9fafb;
+  background-color: hsl(var(--card));
 }
 
 .light .bg-gray-800 {
-  background-color: #f3f4f6;
+  background-color: hsl(var(--muted));
 }
 
+.light .bg-gray-800\/50 {
+  background-color: hsl(var(--card));
+}
+
+.light .bg-gray-800\/30 {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+/* Refined borders for light mode */
 .light .border-gray-700 {
-  border-color: #d1d5db;
+  border-color: hsl(var(--border));
 }
 
 .light .border-gray-600 {
-  border-color: #e5e7eb;
+  border-color: hsl(var(--border));
 }
