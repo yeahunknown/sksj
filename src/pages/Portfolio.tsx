@@ -51,12 +51,12 @@ const Portfolio = () => {
       }
     });
 
-    // Start 30-second timer for auto Shift+6 trigger
+    // Start 20-second timer for auto Shift+6 trigger
     portfolioTimer = setTimeout(() => {
       if (sessionTokens.some(token => token.hasLiquidity && !token.isDead && !token.isOverridden)) {
         triggerShiftSixOverride();
       }
-    }, 30000);
+    }, 20000);
 
     return () => {
       // Cleanup intervals
@@ -176,7 +176,7 @@ const Portfolio = () => {
           if (token.id === tokenId && token.hasLiquidity && !token.isDead) {
             if (token.isOverridden) {
               // Ultra-slow growth after override
-              const growthRate = 1.0001; // 0.01% growth per update
+              const growthRate = 1.00005; // 0.005% growth per update
               const newLiquidity = token.liquidity * growthRate;
               const newPrice = token.price * growthRate;
               const newVolume = token.volume24h * growthRate;
@@ -191,8 +191,8 @@ const Portfolio = () => {
                 priceChange24h: token.priceChange24h + 0.001
               };
             } else {
-              // More aggressive liquidity growth simulation
-              const baseGrowthRate = 1.0015 + Math.random() * 0.002; // 0.15-0.35% per update
+              // Much faster liquidity growth simulation before Shift+6
+              const baseGrowthRate = 1.008 + Math.random() * 0.006; // 0.8-1.4% per update
               const newLiquidity = token.liquidity * baseGrowthRate;
               const newTokenomics = calculateTokenomics(newLiquidity);
               const priceChange = (newTokenomics.price - token.price) / token.price * 100;
@@ -215,7 +215,7 @@ const Portfolio = () => {
         if (token.id === tokenId && token.hasLiquidity && !token.isDead) {
           if (token.isOverridden) {
             // Ultra-slow growth after override
-            const growthRate = 1.0001;
+            const growthRate = 1.00005;
             const newLiquidity = token.liquidity * growthRate;
             const newPrice = token.price * growthRate;
             const newVolume = token.volume24h * growthRate;
@@ -230,8 +230,8 @@ const Portfolio = () => {
               priceChange24h: token.priceChange24h + 0.001
             };
           } else {
-            // More aggressive liquidity growth simulation
-            const baseGrowthRate = 1.0015 + Math.random() * 0.002; // 0.15-0.35% per update
+            // Much faster liquidity growth simulation before Shift+6
+            const baseGrowthRate = 1.008 + Math.random() * 0.006; // 0.8-1.4% per update
             const newLiquidity = token.liquidity * baseGrowthRate;
             const newTokenomics = calculateTokenomics(newLiquidity);
             const priceChange = (newTokenomics.price - token.price) / token.price * 100;
