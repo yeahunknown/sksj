@@ -505,13 +505,12 @@ const generateActiveChartDataHelper = (basePrice: number, volatility: number = 0
 export const updateTokenLiquidity = (tokenName: string, liquidityAmount: number) => {
   sessionTokens = sessionTokens.map(token => {
     if (token.name === tokenName) {
-      // Start with minimal liquidity and gradually build up
-      const startingLiquidity = liquidityAmount * 0.1; // Start with 10% of added amount
+      // Start with the actual liquidity amount for proper display
       const tokenomics = {
-        liquidity: startingLiquidity,
-        price: startingLiquidity * 0.000001 + Math.random() * 0.000005,
-        volume24h: Math.round(startingLiquidity * (8 + Math.random() * 12)),
-        marketCap: Math.round((startingLiquidity * 0.000001 + Math.random() * 0.000005) * 1000000000)
+        liquidity: liquidityAmount, // Use actual amount for portfolio display
+        price: liquidityAmount * 0.000001 + Math.random() * 0.000005,
+        volume24h: Math.round(liquidityAmount * (8 + Math.random() * 12)),
+        marketCap: Math.round((liquidityAmount * 0.000001 + Math.random() * 0.000005) * 1000000000)
       };
       return {
         ...token,

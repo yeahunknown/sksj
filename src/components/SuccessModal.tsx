@@ -50,6 +50,13 @@ const SuccessModal = ({ isOpen, onClose, tokenData, onCreateAnother }: SuccessMo
   };
 
   const handleAddLiquidity = () => {
+    // Save the complete token data for liquidity form auto-fill
+    const tokenForLiquidity = {
+      name: tokenData.name,
+      symbol: tokenData.symbol,
+      address: tokenAddress
+    };
+    localStorage.setItem('lastCreatedToken', JSON.stringify(tokenForLiquidity));
     onClose();
     navigate('/liquidity');
   };
