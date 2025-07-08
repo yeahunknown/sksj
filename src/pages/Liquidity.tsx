@@ -119,6 +119,14 @@ const Liquidity = () => {
     
     // Update session token with liquidity
     updateTokenLiquidity(formData.tokenName, parseFloat(formData.lpSize));
+    
+    // Update the token in localStorage with the address for future use
+    const lastToken = localStorage.getItem('lastCreatedToken');
+    if (lastToken) {
+      const tokenData = JSON.parse(lastToken);
+      tokenData.address = formData.tokenAddress;
+      localStorage.setItem('lastCreatedToken', JSON.stringify(tokenData));
+    }
   };
 
   return (
